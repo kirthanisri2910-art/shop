@@ -94,118 +94,96 @@ function SalesReport() {
   const netProfit = totalProfit - totalDamage;
 
   return (
-    <div style={{ padding: "20px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-        <h2>📊 Sales Report</h2>
+    <div className="max-w-7xl mx-auto p-5">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-4">
+        <h2 className="text-gray-800 text-2xl font-bold m-0">📊 Sales Report</h2>
         
-        <div style={{ display: "flex", gap: "10px" }}>
+        <div className="flex flex-wrap gap-2.5">
           <button 
             onClick={() => setFilter("today")} 
-            style={{
-              padding: "10px 20px",
-              background: filter === "today" ? "#10b981" : "#e5e7eb",
-              color: filter === "today" ? "white" : "#374151",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontWeight: "600"
-            }}
+            className={`px-5 py-2.5 rounded-lg font-semibold transition ${
+              filter === "today" ? "bg-green-500 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
           >
             Today
           </button>
           <button 
             onClick={() => setFilter("weekly")} 
-            style={{
-              padding: "10px 20px",
-              background: filter === "weekly" ? "#10b981" : "#e5e7eb",
-              color: filter === "weekly" ? "white" : "#374151",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontWeight: "600"
-            }}
+            className={`px-5 py-2.5 rounded-lg font-semibold transition ${
+              filter === "weekly" ? "bg-green-500 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
           >
             Weekly
           </button>
           <button 
             onClick={() => setFilter("monthly")} 
-            style={{
-              padding: "10px 20px",
-              background: filter === "monthly" ? "#10b981" : "#e5e7eb",
-              color: filter === "monthly" ? "white" : "#374151",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontWeight: "600"
-            }}
+            className={`px-5 py-2.5 rounded-lg font-semibold transition ${
+              filter === "monthly" ? "bg-green-500 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
           >
             Monthly
           </button>
           <button 
             onClick={() => setFilter("yearly")} 
-            style={{
-              padding: "10px 20px",
-              background: filter === "yearly" ? "#10b981" : "#e5e7eb",
-              color: filter === "yearly" ? "white" : "#374151",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontWeight: "600"
-            }}
+            className={`px-5 py-2.5 rounded-lg font-semibold transition ${
+              filter === "yearly" ? "bg-green-500 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
           >
             Yearly
           </button>
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "20px", margin: "20px 0" }}>
-        <div style={{ background: "#4CAF50", color: "white", padding: "20px", borderRadius: "8px", textAlign: "center" }}>
-          <h3>Total Sales</h3>
-          <h1>₹{totalSales}</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5 my-5">
+        <div className="bg-green-500 text-white p-5 rounded-lg text-center shadow-md hover:shadow-lg transition">
+          <h3 className="text-base font-semibold mb-2">Total Sales</h3>
+          <h1 className="text-4xl font-bold m-0">₹{totalSales}</h1>
         </div>
-        <div style={{ background: "#2196F3", color: "white", padding: "20px", borderRadius: "8px", textAlign: "center" }}>
-          <h3>Total Profit</h3>
-          <h1>₹{totalProfit}</h1>
+        <div className="bg-blue-500 text-white p-5 rounded-lg text-center shadow-md hover:shadow-lg transition">
+          <h3 className="text-base font-semibold mb-2">Total Profit</h3>
+          <h1 className="text-4xl font-bold m-0">₹{totalProfit}</h1>
         </div>
-        <div style={{ background: "#f44336", color: "white", padding: "20px", borderRadius: "8px", textAlign: "center" }}>
-          <h3>Total Damage</h3>
-          <h1>₹{totalDamage}</h1>
+        <div className="bg-red-500 text-white p-5 rounded-lg text-center shadow-md hover:shadow-lg transition">
+          <h3 className="text-base font-semibold mb-2">Total Damage</h3>
+          <h1 className="text-4xl font-bold m-0">₹{totalDamage}</h1>
         </div>
-        <div style={{ background: "#10b981", color: "white", padding: "20px", borderRadius: "8px", textAlign: "center" }}>
-          <h3>Net Profit</h3>
-          <h1>₹{netProfit}</h1>
-          <p style={{ fontSize: "12px", margin: "5px 0 0 0" }}>Profit - Damages</p>
+        <div className="bg-green-600 text-white p-5 rounded-lg text-center shadow-md hover:shadow-lg transition">
+          <h3 className="text-base font-semibold mb-2">Net Profit</h3>
+          <h1 className="text-4xl font-bold m-0">₹{netProfit}</h1>
+          <p className="text-xs mt-1 opacity-90">Profit - Damages</p>
         </div>
-        <div style={{ background: "#FF9800", color: "white", padding: "20px", borderRadius: "8px", textAlign: "center" }}>
-          <h3>Total Bills</h3>
-          <h1>{filteredSales.length}</h1>
+        <div className="bg-orange-500 text-white p-5 rounded-lg text-center shadow-md hover:shadow-lg transition">
+          <h3 className="text-base font-semibold mb-2">Total Bills</h3>
+          <h1 className="text-4xl font-bold m-0">{filteredSales.length}</h1>
         </div>
       </div>
 
-      <table border="1" cellPadding="10" width="100%" style={{ background: "white", marginTop: "20px" }}>
-        <thead style={{ background: "#f5f5f5" }}>
-          <tr>
-            <th>Bill No</th>
-            <th>Date & Time</th>
-            <th>Customer</th>
-            <th>Items</th>
-            <th>Total</th>
-            <th>Profit</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredSales.map((sale, idx) => (
-            <tr key={idx}>
-              <td>#{sale.billNo}</td>
-              <td>{sale.date}</td>
-              <td>{sale.customer}</td>
-              <td>{sale.items}</td>
-              <td style={{ fontWeight: "bold" }}>₹{sale.total}</td>
-              <td style={{ color: "green", fontWeight: "bold" }}>₹{sale.profit}</td>
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse my-5 bg-white rounded-lg overflow-hidden shadow-sm">
+          <thead>
+            <tr>
+              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Bill No</th>
+              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Date & Time</th>
+              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Customer</th>
+              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Items</th>
+              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Total</th>
+              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Profit</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredSales.map((sale, idx) => (
+              <tr key={idx} className="hover:bg-gray-50 transition">
+                <td className="p-3.5 border-b border-gray-100 text-gray-800">#{sale.billNo}</td>
+                <td className="p-3.5 border-b border-gray-100 text-gray-800">{sale.date}</td>
+                <td className="p-3.5 border-b border-gray-100 text-gray-800 font-semibold">{sale.customer}</td>
+                <td className="p-3.5 border-b border-gray-100 text-gray-800">{sale.items}</td>
+                <td className="p-3.5 border-b border-gray-100 text-gray-800 font-bold">₹{sale.total}</td>
+                <td className="p-3.5 border-b border-gray-100 text-green-500 font-bold">₹{sale.profit}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

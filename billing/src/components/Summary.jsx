@@ -15,59 +15,56 @@ function Summary({ cart, discount = 0, paymentMethod, newBill, saveBill, gst = 0
   };
 
   return (
-    <div style={{ marginTop: "20px", paddingTop: "15px", borderTop: "2px solid #e5e7eb" }}>
-      <div style={{ fontSize: "15px", marginBottom: "8px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
+    <div className="mt-5 pt-4 border-t-2 border-gray-200">
+      <div className="text-base mb-2">
+        <div className="flex justify-between mb-1">
           <span>Subtotal:</span>
           <span><strong>₹{subtotal}</strong></span>
         </div>
         {discount > 0 && (
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px", color: "#10b981" }}>
+          <div className="flex justify-between mb-1 text-green-500">
             <span>Discount:</span>
             <span><strong>- ₹{discount}</strong></span>
           </div>
         )}
         {gst > 0 && (
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px", color: "#3b82f6" }}>
+          <div className="flex justify-between mb-1 text-blue-500">
             <span>GST ({gst}%):</span>
             <span><strong>+ ₹{gstAmount.toFixed(2)}</strong></span>
           </div>
         )}
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "18px", marginTop: "10px", paddingTop: "10px", borderTop: "1px solid #e5e7eb" }}>
+        <div className="flex justify-between text-lg mt-2.5 pt-2.5 border-t border-gray-200">
           <span><strong>Grand Total:</strong></span>
           <span><strong>₹{grandTotal.toFixed(2)}</strong></span>
         </div>
         
         {paymentMethod && (
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "8px", fontSize: "14px", color: "#6b7280" }}>
+          <div className="flex justify-between mt-2 text-sm text-gray-500">
             <span>Payment Method:</span>
             <span><strong>{paymentMethod}</strong></span>
           </div>
         )}
       </div>
       
-      <div className="no-print summary-buttons" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px", marginTop: "20px" }}>
+      <div className="print:hidden grid grid-cols-3 gap-2.5 mt-5">
         <button 
           onClick={saveBill} 
-          className="btn-primary" 
           disabled={cart.length === 0}
-          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "5px" }}
+          className="bg-blue-500 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-1"
         >
           <MdSave size={18} /> Save
         </button>
         <button 
           onClick={handlePrint} 
-          className="btn-success" 
           disabled={cart.length === 0 || !isSaved}
-          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "5px" }}
           title={!isSaved ? "Save bill before printing" : "Print bill"}
+          className="bg-green-500 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-1"
         >
           <MdPrint size={18} /> Print
         </button>
         <button 
           onClick={newBill} 
-          className="btn-warning"
-          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "5px" }}
+          className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-1"
         >
           <MdRefresh size={18} /> New
         </button>

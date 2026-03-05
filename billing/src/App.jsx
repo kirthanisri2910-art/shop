@@ -46,132 +46,52 @@ function NavBar() {
   }
 
   return (
-    <nav className="no-print" style={{
-      padding: "15px 30px",
-      background: "#1f2937",
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-      position: "sticky",
-      top: 0,
-      zIndex: 1000,
-      flexWrap: "wrap"
-    }}>
-      <h1 style={{
-        color: "white",
-        fontSize: "22px",
-        fontWeight: "700",
-        marginBottom: "0"
-      }}>💼 BizBill Pro {userRole === 'worker' && <span style={{fontSize: '12px', background: 'rgba(255,255,255,0.2)', padding: '4px 8px', borderRadius: '4px', marginLeft: '8px'}}>Worker</span>}</h1>
-      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
+    <nav className="px-8 py-4 bg-gray-800 flex justify-between items-center shadow-md sticky top-0 z-[1000] flex-wrap print:hidden">
+      <h1 className="text-white text-xl font-bold mb-0">
+        💼 BizBill Pro {userRole === 'worker' && <span className="text-xs bg-white/20 px-2 py-1 rounded ml-2">Worker</span>}
+      </h1>
+      <div className="flex gap-2 flex-wrap items-center">
         {userRole === 'owner' && (
           <>
-            <Link to="/" style={{
-              color: "white",
-              textDecoration: "none",
-              padding: "8px 15px",
-              borderRadius: "6px",
-              background: location.pathname === "/" ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.1)",
-              fontWeight: "500",
-              fontSize: "13px",
-              transition: "all 0.2s ease",
-              display: "flex",
-              alignItems: "center",
-              gap: "5px",
-              border: location.pathname === "/" ? "1px solid rgba(255,255,255,0.3)" : "none"
-            }}><MdDashboard size={16} /> Dashboard</Link>
+            <Link to="/" className={`text-white no-underline px-4 py-2 rounded-md font-medium text-sm transition flex items-center gap-1 ${
+              location.pathname === "/" ? "bg-white/25 border border-white/30" : "bg-white/10 hover:bg-white/20"
+            }`}>
+              <MdDashboard size={16} /> Dashboard
+            </Link>
           </>
         )}
-        <Link to="/billing" style={{
-          color: "white",
-          textDecoration: "none",
-          padding: "8px 15px",
-          borderRadius: "6px",
-          background: location.pathname === "/billing" ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.1)",
-          fontWeight: "500",
-          fontSize: "13px",
-          transition: "all 0.2s ease",
-          display: "flex",
-          alignItems: "center",
-          gap: "5px",
-          border: location.pathname === "/billing" ? "1px solid rgba(255,255,255,0.3)" : "none"
-        }}><MdShoppingCart size={16} /> Billing</Link>
+        <Link to="/billing" className={`text-white no-underline px-4 py-2 rounded-md font-medium text-sm transition flex items-center gap-1 ${
+          location.pathname === "/billing" ? "bg-white/25 border border-white/30" : "bg-white/10 hover:bg-white/20"
+        }`}>
+          <MdShoppingCart size={16} /> Billing
+        </Link>
         {userRole === 'owner' && (
           <>
-        <Link to="/products" style={{
-          color: "white",
-          textDecoration: "none",
-          padding: "8px 15px",
-          borderRadius: "6px",
-          background: location.pathname === "/products" ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.1)",
-          fontWeight: "500",
-          fontSize: "13px",
-          transition: "all 0.2s ease",
-          display: "flex",
-          alignItems: "center",
-          gap: "5px",
-          border: location.pathname === "/products" ? "1px solid rgba(255,255,255,0.3)" : "none"
-        }}><MdInventory size={16} /> Products</Link>
-        <Link to="/sales" style={{
-          color: "white",
-          textDecoration: "none",
-          padding: "8px 15px",
-          borderRadius: "6px",
-          background: location.pathname === "/sales" ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.1)",
-          fontWeight: "500",
-          fontSize: "13px",
-          transition: "all 0.2s ease",
-          display: "flex",
-          alignItems: "center",
-          gap: "5px",
-          border: location.pathname === "/sales" ? "1px solid rgba(255,255,255,0.3)" : "none"
-        }}><MdReceipt size={16} /> Sales record</Link>
-        <Link to="/damages" style={{
-          color: "white",
-          textDecoration: "none",
-          padding: "8px 15px",
-          borderRadius: "6px",
-          background: location.pathname === "/damages" ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.1)",
-          fontWeight: "500",
-          fontSize: "13px",
-          transition: "all 0.2s ease",
-          display: "flex",
-          alignItems: "center",
-          gap: "5px",
-          border: location.pathname === "/damages" ? "1px solid rgba(255,255,255,0.3)" : "none"
-        }}><MdDelete size={16} /> Damages</Link>
-        <Link to="/settings" style={{
-          color: "white",
-          textDecoration: "none",
-          padding: "8px 15px",
-          borderRadius: "6px",
-          background: location.pathname === "/settings" ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.1)",
-          fontWeight: "500",
-          fontSize: "13px",
-          transition: "all 0.2s ease",
-          display: "flex",
-          alignItems: "center",
-          gap: "5px",
-          border: location.pathname === "/settings" ? "1px solid rgba(255,255,255,0.3)" : "none"
-        }}><MdSettings size={16} /> Settings</Link>
+            <Link to="/products" className={`text-white no-underline px-4 py-2 rounded-md font-medium text-sm transition flex items-center gap-1 ${
+              location.pathname === "/products" ? "bg-white/25 border border-white/30" : "bg-white/10 hover:bg-white/20"
+            }`}>
+              <MdInventory size={16} /> Products
+            </Link>
+            <Link to="/sales" className={`text-white no-underline px-4 py-2 rounded-md font-medium text-sm transition flex items-center gap-1 ${
+              location.pathname === "/sales" ? "bg-white/25 border border-white/30" : "bg-white/10 hover:bg-white/20"
+            }`}>
+              <MdReceipt size={16} /> Sales record
+            </Link>
+            <Link to="/damages" className={`text-white no-underline px-4 py-2 rounded-md font-medium text-sm transition flex items-center gap-1 ${
+              location.pathname === "/damages" ? "bg-white/25 border border-white/30" : "bg-white/10 hover:bg-white/20"
+            }`}>
+              <MdDelete size={16} /> Damages
+            </Link>
+            <Link to="/settings" className={`text-white no-underline px-4 py-2 rounded-md font-medium text-sm transition flex items-center gap-1 ${
+              location.pathname === "/settings" ? "bg-white/25 border border-white/30" : "bg-white/10 hover:bg-white/20"
+            }`}>
+              <MdSettings size={16} /> Settings
+            </Link>
           </>
         )}
         <button
           onClick={handleLogout}
-          style={{
-            color: "white",
-            padding: "8px 15px",
-            borderRadius: "6px",
-            background: "#ef4444",
-            border: "none",
-            fontWeight: "500",
-            fontSize: "13px",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: "5px"
-          }}
+          className="text-white px-4 py-2 rounded-md bg-red-500 hover:bg-red-600 border-none font-medium text-sm cursor-pointer flex items-center gap-1 transition"
         >
           <MdLogout size={16} /> Logout
         </button>
