@@ -1,1 +1,54 @@
 @import "tailwindcss";
+
+@layer base {
+  body {
+    @apply bg-gray-50 min-h-screen text-gray-800;
+  }
+}
+
+@media print {
+  body {
+    @apply bg-white m-0 p-0 text-black;
+  }
+  
+  .print\:hidden {
+    display: none !important;
+  }
+  
+  table {
+    page-break-inside: avoid;
+  }
+  
+  th {
+    @apply bg-white text-black border-b-2 border-t border-black;
+    padding: 6px 4px !important;
+    font-size: 11px !important;
+  }
+  
+  td {
+    @apply border-0 border-b border-gray-300;
+    padding: 6px 4px !important;
+    font-size: 11px !important;
+    color: #000 !important;
+  }
+  
+  h2 {
+    font-size: 18px !important;
+    margin: 5px 0 !important;
+  }
+  
+  p {
+    font-size: 11px !important;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

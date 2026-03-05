@@ -4,7 +4,7 @@ import Cart from "../components/Cart";
 import Summary from "../components/Summary";
 import Toast from "../components/Toast";
 import ConfirmModal from "../components/ConfirmModal";
-import "../billing.css";
+
 
 function Billing() {
 
@@ -177,7 +177,7 @@ function Billing() {
   };
 
   return (
-    <div className="container">
+    <div className="max-w-7xl mx-auto p-5">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       {showConfirmModal && (
         <ConfirmModal
@@ -188,38 +188,24 @@ function Billing() {
         />
       )}
       
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
-        <h2 className="no-print" style={{ color: "#1f2937", margin: 0 }}>Billing System</h2>
+      <div className="flex justify-between items-center mb-6 print:hidden">
+        <h2 className="text-gray-800 text-2xl font-bold m-0">Billing System</h2>
         {!isSaved && cart.length > 0 && (
-          <span className="no-print" style={{ 
-            background: '#fef3c7', 
-            color: '#92400e', 
-            padding: '6px 12px', 
-            borderRadius: '6px',
-            fontSize: '13px',
-            fontWeight: '600'
-          }}>
+          <span className="bg-yellow-100 text-yellow-800 px-3 py-1.5 rounded-md text-sm font-semibold">
             ⚠️ Unsaved Changes
           </span>
         )}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "25px" }} className="billing-grid">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* Left: Product Selector */}
-        <div className="no-print billing-left">
-          <div className="box">
-            <h3 style={{ marginBottom: "15px", color: "#1f2937", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div className="print:hidden">
+          <div className="bg-white p-6 my-5 border border-gray-200 rounded-lg shadow-sm">
+            <h3 className="mb-4 text-gray-800 flex items-center justify-between">
               Add Products
               {cart.length > 0 && (
-                <span style={{ 
-                  background: '#10b981', 
-                  color: 'white', 
-                  padding: '4px 12px', 
-                  borderRadius: '20px',
-                  fontSize: '12px',
-                  fontWeight: '600'
-                }}>
+                <span className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
                   {cart.length} items in cart
                 </span>
               )}
@@ -227,15 +213,14 @@ function Billing() {
             <ProductSelector products={products} addToCart={addToCart} />
             
             {/* Quick Add Buttons */}
-            <div style={{ marginTop: "20px" }}>
-              <h4 style={{ marginBottom: "10px", fontSize: "14px", color: "#6b7280" }}>Quick Add</h4>
-              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            <div className="mt-5">
+              <h4 className="mb-2.5 text-sm text-gray-500">Quick Add</h4>
+              <div className="flex gap-2 flex-wrap">
                 {products.slice(0, 4).map(p => (
                   <button
                     key={p.id}
                     onClick={() => addToCart(p, 1)}
-                    className="btn-primary"
-                    style={{ fontSize: "12px", padding: "8px 12px" }}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-semibold transition"
                   >
                     {p.name} +1
                   </button>
@@ -245,37 +230,40 @@ function Billing() {
           </div>
 
           {/* Customer Details */}
-          <div className="box">
-            <h3 style={{ marginBottom: "15px", color: "#1f2937" }}>Customer Details</h3>
+          <div className="bg-white p-6 my-5 border border-gray-200 rounded-lg shadow-sm">
+            <h3 className="mb-4 text-gray-800">Customer Details</h3>
             <input
               type="text"
               placeholder="Customer Name / Phone Number (Optional)"
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
+              className="w-full p-3 my-2 border border-gray-200 rounded-lg text-base focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             />
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }} className="customer-grid">
+            <div className="grid grid-cols-2 gap-2.5">
               <div>
-                <label style={{ fontSize: "13px", color: "#6b7280", display: "block", marginBottom: "5px" }}>Discount (₹)</label>
+                <label className="text-sm text-gray-500 block mb-1">Discount (₹)</label>
                 <input
                   type="number"
                   placeholder="0"
                   value={discount}
                   onChange={(e) => setDiscount(Number(e.target.value))}
+                  className="w-full p-3 my-2 border border-gray-200 rounded-lg text-base focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
               <div>
-                <label style={{ fontSize: "13px", color: "#6b7280", display: "block", marginBottom: "5px" }}>GST (%)</label>
+                <label className="text-sm text-gray-500 block mb-1">GST (%)</label>
                 <input
                   type="number"
                   placeholder="0"
                   value={gst}
                   onChange={(e) => setGst(Number(e.target.value))}
+                  className="w-full p-3 my-2 border border-gray-200 rounded-lg text-base focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
             </div>
-            <div style={{ marginTop: "10px" }}>
-              <label style={{ fontSize: "13px", color: "#6b7280", display: "block", marginBottom: "5px" }}>Payment</label>
-              <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
+            <div className="mt-2.5">
+              <label className="text-sm text-gray-500 block mb-1">Payment</label>
+              <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="w-full p-3 my-2 border border-gray-200 rounded-lg text-base focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
                 <option value="Cash">Cash</option>
                 <option value="UPI">UPI</option>
                 <option value="Card">Card</option>
@@ -285,23 +273,23 @@ function Billing() {
         </div>
 
         {/* Right: Bill Preview */}
-        <div className="billing-right">
-          <div className="print-area">
-            <div style={{ textAlign: "center", marginBottom: "20px", borderBottom: "2px solid #e5e7eb", paddingBottom: "15px" }}>
-              <h2 style={{ margin: "5px 0", color: "#1f2937" }}>{localStorage.getItem('shopName') || 'My Shop'}</h2>
-              <p style={{ margin: "3px 0", fontSize: "13px", color: "#6b7280" }}>{localStorage.getItem('shopAddress') || ''}</p>
-              <p style={{ margin: "3px 0", fontSize: "13px", color: "#6b7280" }}>{localStorage.getItem('shopPhone') || ''}</p>
-              <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px", fontSize: "13px" }}>
+        <div>
+          <div className="bg-white p-6 border border-gray-200 rounded-lg">
+            <div className="text-center mb-5 border-b-2 border-gray-200 pb-4">
+              <h2 className="my-1 text-gray-800 text-xl font-bold">{localStorage.getItem('shopName') || 'My Shop'}</h2>
+              <p className="my-1 text-sm text-gray-500">{localStorage.getItem('shopAddress') || ''}</p>
+              <p className="my-1 text-sm text-gray-500">{localStorage.getItem('shopPhone') || ''}</p>
+              <div className="flex justify-between mt-2.5 text-sm">
                 <span><strong>Bill:</strong> #{billNo}</span>
                 <span><strong>Date:</strong> {new Date().toLocaleDateString()}</span>
               </div>
-              {customerName && <p style={{ margin: "5px 0", fontSize: "14px" }}><strong>Customer:</strong> {customerName}</p>}
+              {customerName && <p className="my-1 text-sm"><strong>Customer:</strong> {customerName}</p>}
             </div>
             
             {cart.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "40px", color: "#9ca3af" }}>
+              <div className="text-center py-10 text-gray-400">
                 <p>No items in cart</p>
-                <p style={{ fontSize: "13px" }}>Add products to start billing</p>
+                <p className="text-sm">Add products to start billing</p>
               </div>
             ) : (
               <>
@@ -322,7 +310,7 @@ function Billing() {
           </div>
           
           {/* Shortcuts Info */}
-          <div className="no-print" style={{ marginTop: "15px", padding: "12px", background: "#f3f4f6", borderRadius: "8px", fontSize: "12px", color: "#6b7280" }}>
+          <div className="print:hidden mt-4 p-3 bg-gray-100 rounded-lg text-xs text-gray-500">
             <strong>Shortcuts:</strong> F2 = New Bill | Ctrl+S = Save | Enter = Add to Cart
           </div>
         </div>

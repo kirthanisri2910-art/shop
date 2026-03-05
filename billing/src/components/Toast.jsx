@@ -10,45 +10,21 @@ function Toast({ message, type = 'success', onClose }) {
   }, [onClose]);
 
   const styles = {
-    success: { bg: '#d1fae5', color: '#065f46', icon: <MdCheckCircle size={20} /> },
-    error: { bg: '#fee2e2', color: '#991b1b', icon: <MdError size={20} /> },
-    warning: { bg: '#fef3c7', color: '#92400e', icon: <MdWarning size={20} /> },
-    info: { bg: '#dbeafe', color: '#1e40af', icon: <MdInfo size={20} /> }
+    success: { bg: 'bg-green-100', color: 'text-green-800', icon: <MdCheckCircle size={20} /> },
+    error: { bg: 'bg-red-100', color: 'text-red-800', icon: <MdError size={20} /> },
+    warning: { bg: 'bg-yellow-100', color: 'text-yellow-800', icon: <MdWarning size={20} /> },
+    info: { bg: 'bg-blue-100', color: 'text-blue-800', icon: <MdInfo size={20} /> }
   };
 
   const style = styles[type];
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: '80px',
-      right: '20px',
-      background: style.bg,
-      color: style.color,
-      padding: '15px 20px',
-      borderRadius: '8px',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '10px',
-      zIndex: 9999,
-      minWidth: '300px',
-      animation: 'slideIn 0.3s ease',
-      fontWeight: '600'
-    }}>
+    <div className={`fixed top-20 right-5 ${style.bg} ${style.color} px-5 py-4 rounded-lg shadow-lg flex items-center gap-2.5 z-[9999] min-w-[300px] animate-[slideIn_0.3s_ease] font-semibold`}>
       {style.icon}
       <span>{message}</span>
       <button
         onClick={onClose}
-        style={{
-          marginLeft: 'auto',
-          background: 'transparent',
-          border: 'none',
-          color: style.color,
-          cursor: 'pointer',
-          fontSize: '18px',
-          padding: '0 5px'
-        }}
+        className={`ml-auto bg-transparent border-none ${style.color} cursor-pointer text-lg px-1 hover:opacity-70`}
       >
         ×
       </button>

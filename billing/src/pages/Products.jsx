@@ -7,7 +7,7 @@ function Products() {
   ]);
 
   const [newProduct, setNewProduct] = useState({ name: "", costPrice: "", price: "", unit: "", stock: "" });
-  const [editingId, setEditingId] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [editData, setEditData] = useState({});
   const [successMsg, setSuccessMsg] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -27,15 +27,15 @@ function Products() {
   };
 
   const handleEdit = (product) => {
-    setEditingId(product.id);
     setEditData(product);
+    setShowEditModal(true);
   };
 
   const handleUpdate = () => {
     setProducts(products.map(p => 
-      p.id === editingId ? { ...editData, lastUpdated: new Date().toLocaleDateString() } : p
+      p.id === editData.id ? { ...editData, lastUpdated: new Date().toLocaleDateString() } : p
     ));
-    setEditingId(null);
+    setShowEditModal(false);
     setSuccessMsg("✅ Product updated successfully!");
     setTimeout(() => setSuccessMsg(""), 3000);
   };
@@ -51,37 +51,20 @@ function Products() {
   );
 
   return (
-    <div style={{ padding: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', gap: '15px' }}>
-        <h2 style={{ margin: 0 }}>📦 Products Management</h2>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flex: 1, justifyContent: 'flex-end' }}>
+    <div className="max-w-7xl mx-auto p-5">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-4">
+        <h2 className="text-gray-800 text-2xl font-bold m-0">📦 Products Management</h2>
+        <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center w-full sm:w-auto">
           <input 
             type="text"
             placeholder="🔍 Search products..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              padding: '10px 15px',
-              borderRadius: '8px',
-              border: '2px solid #e5e7eb',
-              fontSize: '14px',
-              width: '300px',
-              outline: 'none'
-            }}
+            className="px-4 py-2.5 rounded-lg border-2 border-gray-200 text-sm w-full sm:w-72 focus:outline-none focus:border-blue-500"
           />
           <button 
             onClick={() => setShowModal(true)}
-            style={{ 
-              background: '#10b981', 
-              color: 'white', 
-              padding: '12px 24px', 
-              border: 'none', 
-              borderRadius: '8px', 
-              cursor: 'pointer',
-              fontWeight: '600',
-              fontSize: '15px',
-              whiteSpace: 'nowrap'
-            }}
+            className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold text-sm whitespace-nowrap transition"
           >
             ➕ Add Product
           </button>
@@ -89,165 +72,200 @@ function Products() {
       </div>
       
       {successMsg && (
-        <div style={{ 
-          background: '#d4edda', 
-          color: '#155724', 
-          padding: '12px 20px', 
-          borderRadius: '8px', 
-          marginBottom: '20px',
-          border: '1px solid #c3e6cb',
-          fontSize: '15px',
-          fontWeight: '600'
-        }}>
+        <div className="bg-green-100 text-green-800 px-5 py-3 rounded-lg mb-5 border border-green-200 text-sm font-semibold">
           {successMsg}
         </div>
       )}
       
-      <table border="1" cellPadding="8" width="100%" style={{ marginBottom: '20px' }}>
-        <thead style={{ background: '#f0f0f0' }}>
-          <tr>
-            <th>Name</th>
-            <th>Cost Price</th>
-            <th>Selling Price</th>
-            <th>Unit</th>
-            <th>Stock</th>
-            <th>Status</th>
-            <th>Last Updated</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredProducts.map(p => (
-            <tr key={p.id} style={{ background: p.stock < 5 ? '#ffebee' : 'white' }}>
-              {editingId === p.id ? (
-                <>
-                  <td><input value={editData.name} onChange={e => setEditData({...editData, name: e.target.value})} /></td>
-                  <td><input type="number" value={editData.costPrice} onChange={e => setEditData({...editData, costPrice: e.target.value})} /></td>
-                  <td><input type="number" value={editData.price} onChange={e => setEditData({...editData, price: e.target.value})} /></td>
-                  <td><input value={editData.unit} onChange={e => setEditData({...editData, unit: e.target.value})} style={{ width: '60px' }} /></td>
-                  <td><input type="number" value={editData.stock} onChange={e => setEditData({...editData, stock: e.target.value})} /></td>
-                  <td colSpan="2">
-                    <button onClick={handleUpdate} style={{ background: '#4CAF50', color: 'white', padding: '5px 10px', marginRight: '5px' }}>✔️ Save</button>
-                    <button onClick={() => setEditingId(null)} style={{ background: '#f44336', color: 'white', padding: '5px 10px' }}>❌ Cancel</button>
-                  </td>
-                </>
-              ) : (
-                <>
-                  <td>{p.name}</td>
-                  <td>₹{p.costPrice}</td>
-                  <td>₹{p.price}</td>
-                  <td>{p.unit}</td>
-                  <td style={{ fontWeight: 'bold', color: p.stock < 5 ? 'red' : 'green' }}>{p.stock}</td>
-                  <td>{p.stock === 0 ? '❌ Out of Stock' : p.stock <= 5 ? '⚠️ Low stock' : '✅ In Stock'}</td>
-                  <td>{p.lastUpdated}</td>
-                  <td>
-                    <button onClick={() => handleEdit(p)} style={{ background: '#2196F3', color: 'white', padding: '5px 10px', marginRight: '5px' }}>✏️ Edit</button>
-                    <button onClick={() => handleDelete(p.id)} style={{ background: '#f44336', color: 'white', padding: '5px 10px' }}>🗑️ Delete</button>
-                  </td>
-                </>
-              )}
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse my-4 bg-white rounded-lg overflow-hidden shadow-sm">
+          <thead>
+            <tr>
+              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Name</th>
+              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Cost Price</th>
+              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Selling Price</th>
+              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Unit</th>
+              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Stock</th>
+              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Status</th>
+              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Last Updated</th>
+              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredProducts.map(p => (
+              <tr key={p.id} className={`hover:bg-gray-50 transition ${p.stock < 5 ? 'bg-red-50' : 'bg-white'}`}>
+                <td className="p-3.5 border-b border-gray-100 text-gray-800 font-semibold">{p.name}</td>
+                <td className="p-3.5 border-b border-gray-100 text-gray-800">₹{p.costPrice}</td>
+                <td className="p-3.5 border-b border-gray-100 text-gray-800">₹{p.price}</td>
+                <td className="p-3.5 border-b border-gray-100 text-gray-800">{p.unit}</td>
+                <td className={`p-3.5 border-b border-gray-100 font-bold ${p.stock < 5 ? 'text-red-500' : 'text-green-500'}`}>{p.stock}</td>
+                <td className="p-3.5 border-b border-gray-100 text-gray-800">{p.stock === 0 ? '❌ Out of Stock' : p.stock <= 5 ? '⚠️ Low stock' : '✅ In Stock'}</td>
+                <td className="p-3.5 border-b border-gray-100 text-gray-800">{p.lastUpdated}</td>
+                <td className="p-3.5 border-b border-gray-100">
+                  <button onClick={() => handleEdit(p)} className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded mr-2 text-sm transition">✏️ Edit</button>
+                  <button onClick={() => handleDelete(p.id)} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded text-sm transition">🗑️ Delete</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      {/* Modal */}
+      {/* Add Modal */}
       {showModal && (
         <>
           <div 
             onClick={() => setShowModal(false)}
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'rgba(0,0,0,0.5)',
-              zIndex: 999
-            }}
+            className="fixed inset-0 bg-black/50 z-[999]"
           />
-          <div style={{
-            position: 'fixed',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            background: 'white',
-            padding: '30px',
-            borderRadius: '12px',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-            zIndex: 1000,
-            width: '90%',
-            maxWidth: '500px'
-          }}>
-            <h3 style={{ marginTop: 0, marginBottom: '20px' }}>➕ Add New Product</h3>
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-2xl z-[1000] w-[90%] max-w-lg">
+            <h3 className="mt-0 mb-5 text-xl font-bold">➕ Add New Product</h3>
             
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '600' }}>Product Name *</label>
+            <div className="mb-4">
+              <label className="block mb-1 font-semibold text-sm">Product Name *</label>
               <input 
                 placeholder="Enter product name" 
                 value={newProduct.name} 
                 onChange={e => setNewProduct({ ...newProduct, name: e.target.value })} 
-                style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ddd', boxSizing: 'border-box' }} 
+                className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" 
               />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
+            <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '600' }}>Cost Price *</label>
+                <label className="block mb-1 font-semibold text-sm">Cost Price *</label>
                 <input 
                   type="number" 
                   placeholder="₹0" 
                   value={newProduct.costPrice} 
                   onChange={e => setNewProduct({ ...newProduct, costPrice: e.target.value })} 
-                  style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ddd', boxSizing: 'border-box' }} 
+                  className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" 
                 />
               </div>
               <div>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '600' }}>Selling Price *</label>
+                <label className="block mb-1 font-semibold text-sm">Selling Price *</label>
                 <input 
                   type="number" 
                   placeholder="₹0" 
                   value={newProduct.price} 
                   onChange={e => setNewProduct({ ...newProduct, price: e.target.value })} 
-                  style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ddd', boxSizing: 'border-box' }} 
+                  className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" 
                 />
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
+            <div className="grid grid-cols-2 gap-4 mb-5">
               <div>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '600' }}>Unit *</label>
+                <label className="block mb-1 font-semibold text-sm">Unit *</label>
                 <input 
                   placeholder="kg/pcs/ltr" 
                   value={newProduct.unit} 
                   onChange={e => setNewProduct({ ...newProduct, unit: e.target.value })} 
-                  style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ddd', boxSizing: 'border-box' }} 
+                  className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" 
                 />
               </div>
               <div>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '600' }}>Stock *</label>
+                <label className="block mb-1 font-semibold text-sm">Stock *</label>
                 <input 
                   type="number" 
                   placeholder="0" 
                   value={newProduct.stock} 
                   onChange={e => setNewProduct({ ...newProduct, stock: e.target.value })} 
-                  style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ddd', boxSizing: 'border-box' }} 
+                  className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" 
                 />
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+            <div className="flex gap-2.5 justify-end">
               <button 
                 onClick={() => { setShowModal(false); setNewProduct({ name: "", costPrice: "", price: "", unit: "", stock: "" }); }}
-                style={{ background: '#6b7280', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                className="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2.5 rounded-lg cursor-pointer transition"
               >
                 Cancel
               </button>
               <button 
                 onClick={handleAdd}
-                style={{ background: '#10b981', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: '600' }}
+                className="bg-green-500 hover:bg-green-600 text-white px-5 py-2.5 rounded-lg cursor-pointer font-semibold transition"
               >
                 Add Product
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Edit Modal */}
+      {showEditModal && (
+        <>
+          <div 
+            onClick={() => setShowEditModal(false)}
+            className="fixed inset-0 bg-black/50 z-[999]"
+          />
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-2xl z-[1000] w-[90%] max-w-lg">
+            <h3 className="mt-0 mb-5 text-xl font-bold">✏️ Edit Product</h3>
+            
+            <div className="mb-4">
+              <label className="block mb-1 font-semibold text-sm">Product Name *</label>
+              <input 
+                value={editData.name} 
+                onChange={e => setEditData({...editData, name: e.target.value})} 
+                className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" 
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block mb-1 font-semibold text-sm">Cost Price *</label>
+                <input 
+                  type="number" 
+                  value={editData.costPrice} 
+                  onChange={e => setEditData({...editData, costPrice: e.target.value})} 
+                  className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" 
+                />
+              </div>
+              <div>
+                <label className="block mb-1 font-semibold text-sm">Selling Price *</label>
+                <input 
+                  type="number" 
+                  value={editData.price} 
+                  onChange={e => setEditData({...editData, price: e.target.value})} 
+                  className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" 
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 mb-5">
+              <div>
+                <label className="block mb-1 font-semibold text-sm">Unit *</label>
+                <input 
+                  value={editData.unit} 
+                  onChange={e => setEditData({...editData, unit: e.target.value})} 
+                  className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" 
+                />
+              </div>
+              <div>
+                <label className="block mb-1 font-semibold text-sm">Stock *</label>
+                <input 
+                  type="number" 
+                  value={editData.stock} 
+                  onChange={e => setEditData({...editData, stock: e.target.value})} 
+                  className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" 
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2.5 justify-end">
+              <button 
+                onClick={() => setShowEditModal(false)}
+                className="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2.5 rounded-lg cursor-pointer transition"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleUpdate}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-lg cursor-pointer font-semibold transition"
+              >
+                Update Product
               </button>
             </div>
           </div>

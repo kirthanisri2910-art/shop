@@ -43,83 +43,30 @@ function Login() {
   };
 
   return (
-    <div style={{ 
-      display: "flex", 
-      justifyContent: "center", 
-      alignItems: "center", 
-      minHeight: "100vh",
-      background: "#f8f9fa"
-    }}>
-      <div style={{ 
-        background: "white", 
-        padding: "50px 40px", 
-        borderRadius: "12px",
-        width: "420px",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-        border: "1px solid #e5e7eb"
-      }}>
-        <div style={{ textAlign: "center", marginBottom: "35px" }}>
-          <div style={{ 
-            width: "80px",
-            height: "80px",
-            background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
-            borderRadius: "16px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            margin: "0 auto 20px",
-            fontSize: "40px"
-          }}>💼</div>
-          <h1 style={{ 
-            margin: "0", 
-            fontSize: "26px",
-            color: "#1f2937",
-            fontWeight: "700"
-          }}>Welcome Back</h1>
-          <p style={{ 
-            margin: "8px 0 0 0", 
-            color: "#6b7280",
-            fontSize: "14px"
-          }}>Sign in to your account</p>
+    <div className="flex justify-center items-center min-h-screen bg-gray-50">
+      <div className="bg-white p-12 rounded-xl w-full max-w-md shadow-lg border border-gray-200">
+        <div className="text-center mb-9">
+          <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-5 text-5xl">
+            💼
+          </div>
+          <h1 className="m-0 text-3xl text-gray-800 font-bold">Welcome Back</h1>
+          <p className="mt-2 text-gray-500 text-sm">Sign in to your account</p>
         </div>
         
-        <div style={{ marginBottom: "20px" }}>
-          <label style={{ 
-            display: "block", 
-            marginBottom: "8px",
-            color: "#374151",
-            fontWeight: "600",
-            fontSize: "14px"
-          }}>Email Address</label>
+        <div className="mb-5">
+          <label className="block mb-2 text-gray-700 font-semibold text-sm">Email Address</label>
           <input
             type="email"
             placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             onKeyPress={(e) => e.key === "Enter" && handleLogin()}
-            style={{ 
-              width: "100%", 
-              padding: "12px 14px", 
-              border: "2px solid #e5e7eb",
-              borderRadius: "8px",
-              fontSize: "14px",
-              outline: "none",
-              transition: "border 0.2s",
-              boxSizing: "border-box"
-            }}
-            onFocus={(e) => e.target.style.borderColor = "#3b82f6"}
-            onBlur={(e) => e.target.style.borderColor = "#e5e7eb"}
+            className="w-full px-3.5 py-3 border-2 border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition"
           />
         </div>
         
-        <div style={{ marginBottom: "30px" }}>
-          <label style={{ 
-            display: "block", 
-            marginBottom: "8px",
-            color: "#374151",
-            fontWeight: "600",
-            fontSize: "14px"
-          }}>Password</label>
+        <div className="mb-8">
+          <label className="block mb-2 text-gray-700 font-semibold text-sm">Password</label>
           <input
             type="password"
             placeholder="Enter your password"
@@ -127,48 +74,23 @@ function Login() {
             onChange={(e) => setPassword(e.target.value)}
             onKeyPress={(e) => e.key === "Enter" && handleLogin()}
             autoComplete="current-password"
-            style={{ 
-              width: "100%", 
-              padding: "12px 14px", 
-              border: "2px solid #e5e7eb",
-              borderRadius: "8px",
-              fontSize: "14px",
-              outline: "none",
-              transition: "border 0.2s",
-              boxSizing: "border-box"
-            }}
-            onFocus={(e) => e.target.style.borderColor = "#3b82f6"}
-            onBlur={(e) => e.target.style.borderColor = "#e5e7eb"}
+            className="w-full px-3.5 py-3 border-2 border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition"
           />
         </div>
         
         <button
           onClick={handleLogin}
-          style={{ 
-            width: "100%", 
-            padding: "14px",
-            background: "#3b82f6",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            fontSize: "15px",
-            fontWeight: "600",
-            cursor: "pointer",
-            transition: "background 0.2s",
-            marginBottom: "20px"
-          }}
-          onMouseOver={(e) => e.target.style.background = "#2563eb"}
-          onMouseOut={(e) => e.target.style.background = "#3b82f6"}
+          className="w-full py-3.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-base font-semibold transition mb-5"
         >
           Sign In
         </button>
 
-        <div style={{ textAlign: "center", paddingTop: "20px", borderTop: "1px solid #e5e7eb" }}>
-          <p style={{ margin: "0", fontSize: "14px", color: "#6b7280" }}>
+        <div className="text-center pt-5 border-t border-gray-200">
+          <p className="m-0 text-sm text-gray-500">
             Don't have an account?{" "}
             <span 
               onClick={() => navigate("/register")}
-              style={{ color: "#3b82f6", fontWeight: "600", cursor: "pointer", textDecoration: "underline" }}
+              className="text-blue-500 font-semibold cursor-pointer underline hover:text-blue-600"
             >
               Create account
             </span>

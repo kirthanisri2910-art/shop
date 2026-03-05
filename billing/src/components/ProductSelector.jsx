@@ -43,11 +43,11 @@ function ProductSelector({ products, addToCart }) {
 
   return (
     <div>
-      <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "600", color: "#374151", display: "flex", alignItems: "center", gap: "5px" }}>
+      <label className="block mb-2 text-sm font-semibold text-gray-700 flex items-center gap-1">
         <MdInventory size={18} /> Select Product
       </label>
       
-      <div style={{ position: 'relative' }}>
+      <div className="relative">
         <input
           ref={searchRef}
           type="text"
@@ -59,39 +59,19 @@ function ProductSelector({ products, addToCart }) {
             setSelectedProduct(null);
           }}
           onFocus={() => setShowDropdown(true)}
-          style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ddd' }}
+          className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
         />
         
         {showDropdown && searchTerm && filteredProducts.length > 0 && (
-          <div style={{
-            position: 'absolute',
-            top: '100%',
-            left: 0,
-            right: 0,
-            background: 'white',
-            border: '1px solid #ddd',
-            borderRadius: '5px',
-            marginTop: '5px',
-            maxHeight: '200px',
-            overflowY: 'auto',
-            zIndex: 10,
-            boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-          }}>
+          <div className="absolute top-full left-0 right-0 bg-white border-2 border-blue-500 rounded-lg mt-1 max-h-72 overflow-y-auto z-10 shadow-lg">
             {filteredProducts.map(p => (
               <div
                 key={p.id}
                 onClick={() => handleSelectProduct(p)}
-                style={{
-                  padding: '10px',
-                  cursor: 'pointer',
-                  borderBottom: '1px solid #f0f0f0',
-                  background: 'white'
-                }}
-                onMouseEnter={(e) => e.target.style.background = '#f3f4f6'}
-                onMouseLeave={(e) => e.target.style.background = 'white'}
+                className="p-3 cursor-pointer border-b border-gray-100 hover:bg-blue-500 hover:text-white transition"
               >
-                <div style={{ fontWeight: '600' }}>{p.name}</div>
-                <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                <div className="font-semibold">{p.name}</div>
+                <div className="text-xs opacity-75">
                   ₹{p.price}/{p.unit}
                 </div>
               </div>
@@ -100,7 +80,7 @@ function ProductSelector({ products, addToCart }) {
         )}
       </div>
 
-      <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+      <div className="flex gap-2.5 mt-2.5">
         <input
           ref={quantityRef}
           type="number"
@@ -108,15 +88,15 @@ function ProductSelector({ products, addToCart }) {
           placeholder="Quantity"
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
-          style={{ flex: 1 }}
+          className="flex-1 p-3 my-2 border border-gray-200 rounded-lg text-base focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
         />
-        <button onClick={handleAdd} className="btn-success">
+        <button onClick={handleAdd} className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 my-2 rounded-lg font-semibold transition">
           Add 
         </button>
       </div>
       
       {selectedProduct && selectedProduct.stock < 5 && (
-        <p style={{ color: "#ef4444", fontSize: "13px", marginTop: "8px", display: "flex", alignItems: "center", gap: "5px" }}>
+        <p className="text-red-500 text-sm mt-2 flex items-center gap-1">
           <MdWarning size={16} /> Only {selectedProduct.stock} {selectedProduct.unit} left in stock!
         </p>
       )}
