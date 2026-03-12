@@ -6,6 +6,7 @@ import { GiReceiveMoney, GiProfit, GiBrokenHeart } from "react-icons/gi";
 
 function Dashboard() {
   const navigate = useNavigate();
+  const userRole = localStorage.getItem('userRole') || 'owner';
   
   // Dummy data - replace with real data from API later
   const [salesData] = useState([
@@ -75,37 +76,41 @@ function Dashboard() {
           </div>
         </div>
         
-        <div className="bg-white p-6 rounded-lg border-l-4 border-blue-500 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center gap-2.5 mb-2.5">
-            <GiProfit size={28} className="text-blue-500" />
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide m-0">Today Profit</h3>
-          </div>
-          <div className="text-3xl font-bold text-blue-500 my-2">₹{todayProfit}</div>
-        </div>
-        
-        <div className="bg-white p-6 rounded-lg border-l-4 border-red-500 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center gap-2.5 mb-2.5">
-            <GiBrokenHeart size={28} className="text-red-500" />
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide m-0">Today Damage</h3>
-          </div>
-          <div className="text-3xl font-bold text-red-500 my-2">₹{todayDamage}</div>
-        </div>
-        
-        <div className="bg-white p-6 rounded-lg border-l-4 border-green-500 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center gap-2.5 mb-2.5">
-            <MdCheckCircle size={28} className="text-green-500" />
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide m-0">Net Profit</h3>
-          </div>
-          <div className="text-3xl font-bold text-green-500 my-2">₹{netProfit}</div>
-          <div className="text-xs text-gray-500 mt-1">Profit - Damages</div>
-        </div>
+        {userRole === 'owner' && (
+          <>
+            <div className="bg-white p-6 rounded-lg border-l-4 border-blue-500 shadow-sm hover:shadow-md transition">
+              <div className="flex items-center gap-2.5 mb-2.5">
+                <GiProfit size={28} className="text-blue-500" />
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide m-0">Today Profit</h3>
+              </div>
+              <div className="text-3xl font-bold text-blue-500 my-2">₹{todayProfit}</div>
+            </div>
+            
+            <div className="bg-white p-6 rounded-lg border-l-4 border-red-500 shadow-sm hover:shadow-md transition">
+              <div className="flex items-center gap-2.5 mb-2.5">
+                <GiBrokenHeart size={28} className="text-red-500" />
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide m-0">Today Damage</h3>
+              </div>
+              <div className="text-3xl font-bold text-red-500 my-2">₹{todayDamage}</div>
+            </div>
+            
+            <div className="bg-white p-6 rounded-lg border-l-4 border-green-500 shadow-sm hover:shadow-md transition">
+              <div className="flex items-center gap-2.5 mb-2.5">
+                <MdCheckCircle size={28} className="text-green-500" />
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide m-0">Net Profit</h3>
+              </div>
+              <div className="text-3xl font-bold text-green-500 my-2">₹{netProfit}</div>
+              <div className="text-xs text-gray-500 mt-1">Profit - Damages</div>
+            </div>
+          </>
+        )}
         
         <div className="bg-white p-6 rounded-lg border-l-4 border-purple-500 shadow-sm hover:shadow-md transition">
           <div className="flex items-center gap-2.5 mb-2.5">
             <MdReceipt size={28} className="text-purple-500" />
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide m-0">Avg Bill</h3>
+            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide m-0">{userRole === 'owner' ? 'Avg Bill' : 'Total Bills'}</h3>
           </div>
-          <div className="text-3xl font-bold text-purple-500 my-2">₹{avgBill}</div>
+          <div className="text-3xl font-bold text-purple-500 my-2">{userRole === 'owner' ? `₹${avgBill}` : todayBills}</div>
           <div className="text-xs text-gray-500 mt-1">{todayBills} bills today</div>
         </div>
       </div>

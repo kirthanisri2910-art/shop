@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 
 function SalesReport() {
+  const userRole = localStorage.getItem('userRole') || 'owner';
   const [filter, setFilter] = useState("today");
   
   const [sales] = useState([
@@ -139,19 +140,23 @@ function SalesReport() {
           <h3 className="text-base font-semibold mb-2">Total Sales</h3>
           <h1 className="text-4xl font-bold m-0">₹{totalSales}</h1>
         </div>
-        <div className="bg-blue-500 text-white p-5 rounded-lg text-center shadow-md hover:shadow-lg transition">
-          <h3 className="text-base font-semibold mb-2">Total Profit</h3>
-          <h1 className="text-4xl font-bold m-0">₹{totalProfit}</h1>
-        </div>
-        <div className="bg-red-500 text-white p-5 rounded-lg text-center shadow-md hover:shadow-lg transition">
-          <h3 className="text-base font-semibold mb-2">Total Damage</h3>
-          <h1 className="text-4xl font-bold m-0">₹{totalDamage}</h1>
-        </div>
-        <div className="bg-green-600 text-white p-5 rounded-lg text-center shadow-md hover:shadow-lg transition">
-          <h3 className="text-base font-semibold mb-2">Net Profit</h3>
-          <h1 className="text-4xl font-bold m-0">₹{netProfit}</h1>
-          <p className="text-xs mt-1 opacity-90">Profit - Damages</p>
-        </div>
+        {userRole === 'owner' && (
+          <>
+            <div className="bg-blue-500 text-white p-5 rounded-lg text-center shadow-md hover:shadow-lg transition">
+              <h3 className="text-base font-semibold mb-2">Total Profit</h3>
+              <h1 className="text-4xl font-bold m-0">₹{totalProfit}</h1>
+            </div>
+            <div className="bg-red-500 text-white p-5 rounded-lg text-center shadow-md hover:shadow-lg transition">
+              <h3 className="text-base font-semibold mb-2">Total Damage</h3>
+              <h1 className="text-4xl font-bold m-0">₹{totalDamage}</h1>
+            </div>
+            <div className="bg-green-600 text-white p-5 rounded-lg text-center shadow-md hover:shadow-lg transition">
+              <h3 className="text-base font-semibold mb-2">Net Profit</h3>
+              <h1 className="text-4xl font-bold m-0">₹{netProfit}</h1>
+              <p className="text-xs mt-1 opacity-90">Profit - Damages</p>
+            </div>
+          </>
+        )}
         <div className="bg-orange-500 text-white p-5 rounded-lg text-center shadow-md hover:shadow-lg transition">
           <h3 className="text-base font-semibold mb-2">Total Bills</h3>
           <h1 className="text-4xl font-bold m-0">{filteredSales.length}</h1>
@@ -167,7 +172,7 @@ function SalesReport() {
               <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Customer</th>
               <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Items</th>
               <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Total</th>
-              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Profit</th>
+              {userRole === 'owner' && <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Profit</th>}
             </tr>
           </thead>
           <tbody>
@@ -178,7 +183,7 @@ function SalesReport() {
                 <td className="p-3.5 border-b border-gray-100 text-gray-800 font-semibold">{sale.customer}</td>
                 <td className="p-3.5 border-b border-gray-100 text-gray-800">{sale.items}</td>
                 <td className="p-3.5 border-b border-gray-100 text-gray-800 font-bold">₹{sale.total}</td>
-                <td className="p-3.5 border-b border-gray-100 text-green-500 font-bold">₹{sale.profit}</td>
+                {userRole === 'owner' && <td className="p-3.5 border-b border-gray-100 text-green-500 font-bold">₹{sale.profit}</td>}
               </tr>
             ))}
           </tbody>

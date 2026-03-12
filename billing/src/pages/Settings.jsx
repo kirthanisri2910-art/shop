@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MdAdd, MdDelete, MdPerson } from "react-icons/md";
+import { MdAdd, MdDelete, MdPerson, MdManageAccounts } from "react-icons/md";
 
 function Settings() {
   const [shopName, setShopName] = useState(localStorage.getItem("shopName") || "");
@@ -7,8 +7,11 @@ function Settings() {
   const [phone, setPhone] = useState(localStorage.getItem("shopPhone") || "");
   const [gstNo, setGstNo] = useState(localStorage.getItem("shopGST") || "");
   const [workers, setWorkers] = useState(JSON.parse(localStorage.getItem("workers") || "[]"));
+  const [managers, setManagers] = useState(JSON.parse(localStorage.getItem("managers") || "[]"));
   const [showAddWorker, setShowAddWorker] = useState(false);
+  const [showAddManager, setShowAddManager] = useState(false);
   const [newWorker, setNewWorker] = useState({ name: "", email: "", password: "" });
+  const [newManager, setNewManager] = useState({ name: "", email: "", password: "" });
 
   const handleSave = () => {
     localStorage.setItem("shopName", shopName);
@@ -31,11 +34,32 @@ function Settings() {
     alert("Worker added successfully!");
   };
 
+  const handleAddManager = () => {
+    if (!newManager.name || !newManager.email || !newManager.password) {
+      alert("Fill all fields");
+      return;
+    }
+    const updatedManagers = [...managers, { ...newManager, shopName, id: Date.now() }];
+    setManagers(updatedManagers);
+    localStorage.setItem("managers", JSON.stringify(updatedManagers));
+    setNewManager({ name: "", email: "", password: "" });
+    setShowAddManager(false);
+    alert("Manager added successfully!");
+  };
+
   const handleDeleteWorker = (id) => {
     if (window.confirm("Delete this worker?")) {
       const updatedWorkers = workers.filter(w => w.id !== id);
       setWorkers(updatedWorkers);
       localStorage.setItem("workers", JSON.stringify(updatedWorkers));
+    }
+  };
+
+  const handleDeleteManager = (id) => {
+    if (window.confirm("Delete this manager?")) {
+      const updatedManagers = managers.filter(m => m.id !== id);
+      setManagers(updatedManagers);
+      localStorage.setItem("managers", JSON.stringify(updatedManagers));
     }
   };
 
@@ -90,6 +114,93 @@ function Settings() {
         >
           Save Settings
         </button>
+      </div>
+
+      {/* Manager Management */}
+      <div style={{ background: "white", padding: "20px", borderRadius: "8px", marginTop: "20px" }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+          <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <MdManageAccounts size={24} /> Manager Accounts
+          </h3>
+          <button
+            onClick={() => setShowAddManager(!showAddManager)}
+            style={{
+              padding: '8px 16px',
+              background: '#3b82f6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              fontWeight: '600'
+            }}
+          >
+            <MdAdd size={18} /> Add Manager
+          </button>
+        </div>
+
+        {showAddManager && (
+          <div style={{ background: '#f9fafb', padding: '15px', borderRadius: '6px', marginBottom: '15px' }}>
+            <input
+              placeholder="Manager Name"
+              value={newManager.name}
+              onChange={(e) => setNewManager({...newManager, name: e.target.value})}
+              style={{ width: '100%', padding: '10px', marginBottom: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+            />
+            <input
+              type="email"
+              placeholder="Manager Email"
+              value={newManager.email}
+              onChange={(e) => setNewManager({...newManager, email: e.target.value})}
+              style={{ width: '100%', padding: '10px', marginBottom: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={newManager.password}
+              onChange={(e) => setNewManager({...newManager, password: e.target.value})}
+              style={{ width: '100%', padding: '10px', marginBottom: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+            />
+            <button
+              onClick={handleAddManager}
+              style={{ padding: '10px 20px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '600' }}
+            >
+              Create Manager Account
+            </button>
+          </div>
+        )}
+
+        {managers.length === 0 ? (
+          <p style={{ color: '#6b7280', textAlign: 'center', padding: '20px' }}>No managers added yet</p>
+        ) : (
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: '#f3f4f6' }}>
+                <th style={{ padding: '10px', textAlign: 'left' }}>Name</th>
+                <th style={{ padding: '10px', textAlign: 'left' }}>Email</th>
+                <th style={{ padding: '10px', textAlign: 'left' }}>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {managers.map(manager => (
+                <tr key={manager.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                  <td style={{ padding: '10px' }}>{manager.name}</td>
+                  <td style={{ padding: '10px' }}>{manager.email}</td>
+                  <td style={{ padding: '10px' }}>
+                    <button
+                      onClick={() => handleDeleteManager(manager.id)}
+                      style={{ padding: '6px 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}
+                    >
+                      <MdDelete size={16} /> Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {/* Worker Management */}

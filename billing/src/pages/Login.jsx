@@ -19,9 +19,23 @@ function Login() {
     if (owner) {
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("userRole", "owner");
+      localStorage.setItem("userName", "Owner");
       localStorage.setItem("shopName", owner.shopName);
       localStorage.setItem("shopAddress", owner.shopAddress || "");
       localStorage.setItem("shopEmail", owner.shopEmail);
+      navigate("/");
+      return;
+    }
+    
+    // Check manager account
+    const managers = JSON.parse(localStorage.getItem("managers") || "[]");
+    const manager = managers.find(m => m.email === email && m.password === password);
+    
+    if (manager) {
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("userRole", "manager");
+      localStorage.setItem("userName", manager.name);
+      localStorage.setItem("shopName", manager.shopName);
       navigate("/");
       return;
     }

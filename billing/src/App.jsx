@@ -48,10 +48,12 @@ function NavBar() {
   return (
     <nav className="px-8 py-4 bg-gray-800 flex justify-between items-center shadow-md sticky top-0 z-[1000] flex-wrap print:hidden">
       <h1 className="text-white text-xl font-bold mb-0">
-        💼 BizBill Pro {userRole === 'worker' && <span className="text-xs bg-white/20 px-2 py-1 rounded ml-2">Worker</span>}
+        💼 BizBill Pro 
+        {userRole === 'worker' && <span className="text-xs bg-white/20 px-2 py-1 rounded ml-2">Worker</span>}
+        {userRole === 'manager' && <span className="text-xs bg-white/20 px-2 py-1 rounded ml-2">Manager</span>}
       </h1>
       <div className="flex gap-2 flex-wrap items-center">
-        {userRole === 'owner' && (
+        {(userRole === 'owner' || userRole === 'manager') && (
           <>
             <Link to="/" className={`text-white no-underline px-4 py-2 rounded-md font-medium text-sm transition flex items-center gap-1 ${
               location.pathname === "/" ? "bg-white/25 border border-white/30" : "bg-white/10 hover:bg-white/20"
@@ -65,7 +67,7 @@ function NavBar() {
         }`}>
           <MdShoppingCart size={16} /> Billing
         </Link>
-        {userRole === 'owner' && (
+        {(userRole === 'owner' || userRole === 'manager') && (
           <>
             <Link to="/products" className={`text-white no-underline px-4 py-2 rounded-md font-medium text-sm transition flex items-center gap-1 ${
               location.pathname === "/products" ? "bg-white/25 border border-white/30" : "bg-white/10 hover:bg-white/20"
@@ -82,6 +84,10 @@ function NavBar() {
             }`}>
               <MdDelete size={16} /> Damages
             </Link>
+          </>
+        )}
+        {userRole === 'owner' && (
+          <>
             <Link to="/settings" className={`text-white no-underline px-4 py-2 rounded-md font-medium text-sm transition flex items-center gap-1 ${
               location.pathname === "/settings" ? "bg-white/25 border border-white/30" : "bg-white/10 hover:bg-white/20"
             }`}>
@@ -113,7 +119,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/billing" element={<Billing />} />
           
-          {userRole === 'owner' ? (
+          {userRole === 'owner' && (
             <>
               <Route path="/" element={<Dashboard />} />
               <Route path="/products" element={<Products />} />
@@ -121,7 +127,19 @@ function App() {
               <Route path="/damages" element={<Damages />} />
               <Route path="/settings" element={<Settings />} />
             </>
-          ) : (
+          )}
+          
+          {userRole === 'manager' && (
+            <>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/sales" element={<SalesReport />} />
+              <Route path="/damages" element={<Damages />} />
+              <Route path="*" element={<Navigate to="/" />} />
+            </>
+          )}
+          
+          {userRole === 'worker' && (
             <Route path="*" element={<Navigate to="/billing" />} />
           )}
         </Routes>
