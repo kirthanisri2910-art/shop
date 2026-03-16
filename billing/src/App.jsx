@@ -1,4 +1,4 @@
-import { Routes, Route, Link, BrowserRouter, useLocation, Navigate } from "react-router-dom";
+import { Routes, Route, Link, BrowserRouter, useLocation, Navigate, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { MdDashboard, MdShoppingCart, MdInventory, MdReceipt, MdDelete, MdSettings, MdLogout } from "react-icons/md";
 import Login from "./pages/Login";
@@ -33,11 +33,14 @@ function NavBar() {
     return () => window.removeEventListener('storage', checkLogin);
   }, []);
 
+  const navigate = useNavigate();
+
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("shopName");
+    localStorage.removeItem("userRole");
     setIsLoggedIn(false);
-    window.location.href = "/login";
+    navigate("/login");
   };
 
   // Hide navbar on login and register pages

@@ -7,11 +7,9 @@ function Summary({ cart, discount = 0, paymentMethod, newBill, saveBill, gst = 0
   const grandTotal = totalAfterDiscount + gstAmount;
 
   const handlePrint = () => {
-    if (cart.length === 0) return;
-    if (!isSaved) return;
+    if (cart.length === 0 || !isSaved) return;
     window.print();
     onPrintComplete?.();
-    setTimeout(() => newBill(), 300);
   };
 
   return (
