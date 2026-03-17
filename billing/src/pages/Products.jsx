@@ -15,8 +15,11 @@ function Products() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleAdd = () => {
-    if (!newProduct.name || !newProduct.costPrice || !newProduct.price || !newProduct.unit || !newProduct.stock) {
-      alert("Fill all fields");
+    const requiredFields = userRole === 'owner'
+      ? !newProduct.name || !newProduct.costPrice || !newProduct.unit || !newProduct.stock
+      : !newProduct.name || !newProduct.unit || !newProduct.stock;
+    if (requiredFields) {
+      alert("Fill all required fields");
       return;
     }
     const id = Date.now();
@@ -146,7 +149,7 @@ function Products() {
                 </div>
               )}
               <div>
-                <label className="block mb-1 font-semibold text-sm">Selling Price *</label>
+                <label className="block mb-1 font-semibold text-sm">Selling Price </label>
                 <input 
                   type="number" 
                   placeholder="₹0" 

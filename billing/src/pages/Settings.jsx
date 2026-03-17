@@ -117,55 +117,44 @@ function Settings() {
       </div>
 
       {/* Manager Management */}
-      <div style={{ background: "white", padding: "20px", borderRadius: "8px", marginTop: "20px" }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-          <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div className="bg-white p-5 rounded-lg shadow-sm mt-5">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="m-0 flex items-center gap-2 text-lg font-bold">
             <MdManageAccounts size={24} /> Manager Accounts
           </h3>
           <button
             onClick={() => setShowAddManager(!showAddManager)}
-            style={{
-              padding: '8px 16px',
-              background: '#3b82f6',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              fontWeight: '600'
-            }}
+            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md flex items-center gap-1 font-semibold transition"
           >
             <MdAdd size={18} /> Add Manager
           </button>
         </div>
 
         {showAddManager && (
-          <div style={{ background: '#f9fafb', padding: '15px', borderRadius: '6px', marginBottom: '15px' }}>
+          <div className="bg-gray-50 p-4 rounded-md mb-4">
             <input
               placeholder="Manager Name"
               value={newManager.name}
               onChange={(e) => setNewManager({...newManager, name: e.target.value})}
-              style={{ width: '100%', padding: '10px', marginBottom: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+              className="w-full p-2.5 mb-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             />
             <input
               type="email"
               placeholder="Manager Email"
               value={newManager.email}
               onChange={(e) => setNewManager({...newManager, email: e.target.value})}
-              style={{ width: '100%', padding: '10px', marginBottom: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+              className="w-full p-2.5 mb-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             />
             <input
               type="password"
               placeholder="Password"
               value={newManager.password}
               onChange={(e) => setNewManager({...newManager, password: e.target.value})}
-              style={{ width: '100%', padding: '10px', marginBottom: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+              className="w-full p-2.5 mb-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             />
             <button
               onClick={handleAddManager}
-              style={{ padding: '10px 20px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '600' }}
+              className="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition"
             >
               Create Manager Account
             </button>
@@ -173,33 +162,35 @@ function Settings() {
         )}
 
         {managers.length === 0 ? (
-          <p style={{ color: '#6b7280', textAlign: 'center', padding: '20px' }}>No managers added yet</p>
+          <p className="text-gray-500 text-center py-5">No managers added yet</p>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ background: '#f3f4f6' }}>
-                <th style={{ padding: '10px', textAlign: 'left' }}>Name</th>
-                <th style={{ padding: '10px', textAlign: 'left' }}>Email</th>
-                <th style={{ padding: '10px', textAlign: 'left' }}>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {managers.map(manager => (
-                <tr key={manager.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                  <td style={{ padding: '10px' }}>{manager.name}</td>
-                  <td style={{ padding: '10px' }}>{manager.email}</td>
-                  <td style={{ padding: '10px' }}>
-                    <button
-                      onClick={() => handleDeleteManager(manager.id)}
-                      style={{ padding: '6px 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}
-                    >
-                      <MdDelete size={16} /> Delete
-                    </button>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="p-2.5 text-left text-sm font-semibold">Name</th>
+                  <th className="p-2.5 text-left text-sm font-semibold">Email</th>
+                  <th className="p-2.5 text-left text-sm font-semibold">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {managers.map(manager => (
+                  <tr key={manager.id} className="border-b border-gray-200">
+                    <td className="p-2.5">{manager.name}</td>
+                    <td className="p-2.5">{manager.email}</td>
+                    <td className="p-2.5">
+                      <button
+                        onClick={() => handleDeleteManager(manager.id)}
+                        className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg flex items-center gap-1 text-sm transition"
+                      >
+                        <MdDelete size={16} /> Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
