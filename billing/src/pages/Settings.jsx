@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MdAdd, MdDelete, MdPerson } from "react-icons/md";
+import { MdAdd, MdDelete, MdPerson, MdManageAccounts } from "react-icons/md";
 
 function Settings() {
   const [shopName, setShopName] = useState(localStorage.getItem("shopName") || "");
@@ -7,8 +7,11 @@ function Settings() {
   const [phone, setPhone] = useState(localStorage.getItem("shopPhone") || "");
   const [gstNo, setGstNo] = useState(localStorage.getItem("shopGST") || "");
   const [workers, setWorkers] = useState(JSON.parse(localStorage.getItem("workers") || "[]"));
+  const [managers, setManagers] = useState(JSON.parse(localStorage.getItem("managers") || "[]"));
   const [showAddWorker, setShowAddWorker] = useState(false);
+  const [showAddManager, setShowAddManager] = useState(false);
   const [newWorker, setNewWorker] = useState({ name: "", email: "", password: "" });
+  const [newManager, setNewManager] = useState({ name: "", email: "", password: "" });
 
   const handleSave = () => {
     localStorage.setItem("shopName", shopName);
@@ -31,11 +34,32 @@ function Settings() {
     alert("Worker added successfully!");
   };
 
+  const handleAddManager = () => {
+    if (!newManager.name || !newManager.email || !newManager.password) {
+      alert("Fill all fields");
+      return;
+    }
+    const updatedManagers = [...managers, { ...newManager, shopName, id: Date.now() }];
+    setManagers(updatedManagers);
+    localStorage.setItem("managers", JSON.stringify(updatedManagers));
+    setNewManager({ name: "", email: "", password: "" });
+    setShowAddManager(false);
+    alert("Manager added successfully!");
+  };
+
   const handleDeleteWorker = (id) => {
     if (window.confirm("Delete this worker?")) {
       const updatedWorkers = workers.filter(w => w.id !== id);
       setWorkers(updatedWorkers);
       localStorage.setItem("workers", JSON.stringify(updatedWorkers));
+    }
+  };
+
+  const handleDeleteManager = (id) => {
+    if (window.confirm("Delete this manager?")) {
+      const updatedManagers = managers.filter(m => m.id !== id);
+      setManagers(updatedManagers);
+      localStorage.setItem("managers", JSON.stringify(updatedManagers));
     }
   };
 
@@ -90,6 +114,84 @@ function Settings() {
         >
           Save Settings
         </button>
+      </div>
+
+      {/* Manager Management */}
+      <div className="bg-white p-5 rounded-lg shadow-sm mt-5">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="m-0 flex items-center gap-2 text-lg font-bold">
+            <MdManageAccounts size={24} /> Manager Accounts
+          </h3>
+          <button
+            onClick={() => setShowAddManager(!showAddManager)}
+            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md flex items-center gap-1 font-semibold transition"
+          >
+            <MdAdd size={18} /> Add Manager
+          </button>
+        </div>
+
+        {showAddManager && (
+          <div className="bg-gray-50 p-4 rounded-md mb-4">
+            <input
+              placeholder="Manager Name"
+              value={newManager.name}
+              onChange={(e) => setNewManager({...newManager, name: e.target.value})}
+              className="w-full p-2.5 mb-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            />
+            <input
+              type="email"
+              placeholder="Manager Email"
+              value={newManager.email}
+              onChange={(e) => setNewManager({...newManager, email: e.target.value})}
+              className="w-full p-2.5 mb-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={newManager.password}
+              onChange={(e) => setNewManager({...newManager, password: e.target.value})}
+              className="w-full p-2.5 mb-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            />
+            <button
+              onClick={handleAddManager}
+              className="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition"
+            >
+              Create Manager Account
+            </button>
+          </div>
+        )}
+
+        {managers.length === 0 ? (
+          <p className="text-gray-500 text-center py-5">No managers added yet</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="p-2.5 text-left text-sm font-semibold">Name</th>
+                  <th className="p-2.5 text-left text-sm font-semibold">Email</th>
+                  <th className="p-2.5 text-left text-sm font-semibold">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {managers.map(manager => (
+                  <tr key={manager.id} className="border-b border-gray-200">
+                    <td className="p-2.5">{manager.name}</td>
+                    <td className="p-2.5">{manager.email}</td>
+                    <td className="p-2.5">
+                      <button
+                        onClick={() => handleDeleteManager(manager.id)}
+                        className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg flex items-center gap-1 text-sm transition"
+                      >
+                        <MdDelete size={16} /> Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Worker Management */}

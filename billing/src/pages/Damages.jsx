@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 function Damages() {
+  const userRole = localStorage.getItem('userRole') || 'owner';
   // Product list with cost prices
   const [products] = useState([
     { name: "Tomatoes", costPrice: 40 },
@@ -102,7 +103,7 @@ function Damages() {
           >
             <option value="">Select Product</option>
             {products.map(p => (
-              <option key={p.name} value={p.name}>{p.name} (Cost: ₹{p.costPrice})</option>
+              <option key={p.name} value={p.name}>{p.name}{userRole === 'owner' ? ` (Cost: ₹${p.costPrice})` : ''}</option>
             ))}
           </select>
           <input
@@ -140,7 +141,7 @@ function Damages() {
             <tr>
               <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Product</th>
               <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Quantity</th>
-              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Loss Cost</th>
+              {userRole === 'owner' && <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Loss Cost</th>}
               <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Reason</th>
               <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Date</th>
               <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Actions</th>
@@ -151,7 +152,7 @@ function Damages() {
               <tr key={d.id} className="hover:bg-gray-50 transition">
                 <td className="p-3.5 border-b border-gray-100 text-gray-800 font-semibold">{d.product}</td>
                 <td className="p-3.5 border-b border-gray-100 text-gray-800">{d.quantity}</td>
-                <td className="p-3.5 border-b border-gray-100 font-bold text-red-500">₹{d.lossCost}</td>
+                {userRole === 'owner' && <td className="p-3.5 border-b border-gray-100 font-bold text-red-500">₹{d.lossCost}</td>}
                 <td className="p-3.5 border-b border-gray-100">
                   <span className="bg-red-50 text-red-700 px-2 py-1 rounded text-sm">{d.reason}</span>
                 </td>

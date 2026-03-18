@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 function Products() {
+  const userRole = localStorage.getItem('userRole') || 'owner';
   const [products, setProducts] = useState([
     { id: 1, name: "Tomatoes", costPrice: 35, price: 40, unit: "kg", stock: 12, lastUpdated: "20/02/2026" },
     { id: 2, name: "Apples", costPrice: 20, price: 30, unit: "kg", stock: 20, lastUpdated: "20/02/2026" },
@@ -14,8 +15,11 @@ function Products() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleAdd = () => {
-    if (!newProduct.name || !newProduct.costPrice || !newProduct.price || !newProduct.unit || !newProduct.stock) {
-      alert("Fill all fields");
+    const requiredFields = userRole === 'owner'
+      ? !newProduct.name || !newProduct.costPrice || !newProduct.unit || !newProduct.stock
+      : !newProduct.name || !newProduct.unit || !newProduct.stock;
+    if (requiredFields) {
+      alert("Fill all required fields");
       return;
     }
     const id = Date.now();
@@ -82,7 +86,7 @@ function Products() {
           <thead>
             <tr>
               <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Name</th>
-              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Cost Price</th>
+              {userRole === 'owner' && <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Cost Price</th>}
               <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Selling Price</th>
               <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Unit</th>
               <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Stock</th>
@@ -95,7 +99,7 @@ function Products() {
             {filteredProducts.map(p => (
               <tr key={p.id} className={`hover:bg-gray-50 transition ${p.stock < 5 ? 'bg-red-50' : 'bg-white'}`}>
                 <td className="p-3.5 border-b border-gray-100 text-gray-800 font-semibold">{p.name}</td>
-                <td className="p-3.5 border-b border-gray-100 text-gray-800">₹{p.costPrice}</td>
+                {userRole === 'owner' && <td className="p-3.5 border-b border-gray-100 text-gray-800">₹{p.costPrice}</td>}
                 <td className="p-3.5 border-b border-gray-100 text-gray-800">₹{p.price}</td>
                 <td className="p-3.5 border-b border-gray-100 text-gray-800">{p.unit}</td>
                 <td className={`p-3.5 border-b border-gray-100 font-bold ${p.stock < 5 ? 'text-red-500' : 'text-green-500'}`}>{p.stock}</td>
@@ -132,18 +136,20 @@ function Products() {
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-4">
+              {userRole === 'owner' && (
+                <div>
+                  <label className="block mb-1 font-semibold text-sm">Cost Price *</label>
+                  <input 
+                    type="number" 
+                    placeholder="₹0" 
+                    value={newProduct.costPrice} 
+                    onChange={e => setNewProduct({ ...newProduct, costPrice: e.target.value })} 
+                    className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" 
+                  />
+                </div>
+              )}
               <div>
-                <label className="block mb-1 font-semibold text-sm">Cost Price *</label>
-                <input 
-                  type="number" 
-                  placeholder="₹0" 
-                  value={newProduct.costPrice} 
-                  onChange={e => setNewProduct({ ...newProduct, costPrice: e.target.value })} 
-                  className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" 
-                />
-              </div>
-              <div>
-                <label className="block mb-1 font-semibold text-sm">Selling Price *</label>
+                <label className="block mb-1 font-semibold text-sm">Selling Price </label>
                 <input 
                   type="number" 
                   placeholder="₹0" 
@@ -214,15 +220,17 @@ function Products() {
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className="block mb-1 font-semibold text-sm">Cost Price *</label>
-                <input 
-                  type="number" 
-                  value={editData.costPrice} 
-                  onChange={e => setEditData({...editData, costPrice: e.target.value})} 
-                  className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" 
-                />
-              </div>
+              {userRole === 'owner' && (
+                <div>
+                  <label className="block mb-1 font-semibold text-sm">Cost Price *</label>
+                  <input 
+                    type="number" 
+                    value={editData.costPrice} 
+                    onChange={e => setEditData({...editData, costPrice: e.target.value})} 
+                    className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" 
+                  />
+                </div>
+              )}
               <div>
                 <label className="block mb-1 font-semibold text-sm">Selling Price *</label>
                 <input 

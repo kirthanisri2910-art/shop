@@ -71,7 +71,7 @@ function Billing() {
     };
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, []);
+  }, [cart, isSaved, isPrinted]);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -132,12 +132,12 @@ function Billing() {
 
   const handleSaveAndPrint = () => {
     saveBill(true);
+    setShowConfirmModal(false);
     setTimeout(() => {
       window.print();
       setIsPrinted(true);
-      setShowConfirmModal(false);
-      setTimeout(() => resetBill(true), 300);
-    }, 100);
+      resetBill(true);
+    }, 500);
   };
 
   const handleSaveOnly = () => {
