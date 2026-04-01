@@ -1,70 +1,91 @@
 import { useState } from "react";
 import { MdAdd, MdDelete, MdPerson, MdManageAccounts } from "react-icons/md";
+import Toast from "../components/Toast";
+import ConfirmDialog from "../components/ConfirmDialog";
+import { getShopInfo, saveShopInfo } from "../services/shopService";
+import { getWorkers, saveWorkers, getManagers, saveManagers } from "../services/authService";
 
 function Settings() {
-  const [shopName, setShopName] = useState(localStorage.getItem("shopName") || "");
-  const [address, setAddress] = useState(localStorage.getItem("shopAddress") || "");
-  const [phone, setPhone] = useState(localStorage.getItem("shopPhone") || "");
-  const [gstNo, setGstNo] = useState(localStorage.getItem("shopGST") || "");
-  const [workers, setWorkers] = useState(JSON.parse(localStorage.getItem("workers") || "[]"));
-  const [managers, setManagers] = useState(JSON.parse(localStorage.getItem("managers") || "[]"));
+  const info = getShopInfo();
+  const [shopName, setShopName] = useState(info.shopName);
+  const [address, setAddress] = useState(info.shopAddress);
+  const [phone, setPhone] = useState(info.shopPhone);
+  const [gstNo, setGstNo] = useState(info.shopGST);
+  const [workers, setWorkers] = useState(getWorkers());
+  const [managers, setManagers] = useState(getManagers());
   const [showAddWorker, setShowAddWorker] = useState(false);
   const [showAddManager, setShowAddManager] = useState(false);
   const [newWorker, setNewWorker] = useState({ name: "", email: "", password: "" });
   const [newManager, setNewManager] = useState({ name: "", email: "", password: "" });
+  const [toast, setToast] = useState(null);
+  const showToast = (msg, type = 'success') => setToast({ message: msg, type });
+  const [confirmDialog, setConfirmDialog] = useState(null);
 
   const handleSave = () => {
-    localStorage.setItem("shopName", shopName);
-    localStorage.setItem("shopAddress", address);
-    localStorage.setItem("shopPhone", phone);
-    localStorage.setItem("shopGST", gstNo);
-    alert("Settings Saved Successfully!");
+    saveShopInfo({ shopName, shopAddress: address, shopPhone: phone, shopGST: gstNo });
+    showToast('Settings saved successfully!', 'success');
   };
 
   const handleAddWorker = () => {
     if (!newWorker.name || !newWorker.email || !newWorker.password) {
-      alert("Fill all fields");
+      showToast('Fill all fields', 'error');
       return;
     }
     const updatedWorkers = [...workers, { ...newWorker, shopName, id: Date.now() }];
     setWorkers(updatedWorkers);
-    localStorage.setItem("workers", JSON.stringify(updatedWorkers));
+    saveWorkers(updatedWorkers);
     setNewWorker({ name: "", email: "", password: "" });
     setShowAddWorker(false);
-    alert("Worker added successfully!");
+    showToast('Worker added successfully!', 'success');
   };
 
   const handleAddManager = () => {
     if (!newManager.name || !newManager.email || !newManager.password) {
-      alert("Fill all fields");
+      showToast('Fill all fields', 'error');
       return;
     }
     const updatedManagers = [...managers, { ...newManager, shopName, id: Date.now() }];
     setManagers(updatedManagers);
-    localStorage.setItem("managers", JSON.stringify(updatedManagers));
+    saveManagers(updatedManagers);
     setNewManager({ name: "", email: "", password: "" });
     setShowAddManager(false);
-    alert("Manager added successfully!");
+    showToast('Manager added successfully!', 'success');
   };
 
   const handleDeleteWorker = (id) => {
-    if (window.confirm("Delete this worker?")) {
-      const updatedWorkers = workers.filter(w => w.id !== id);
-      setWorkers(updatedWorkers);
-      localStorage.setItem("workers", JSON.stringify(updatedWorkers));
-    }
+    setConfirmDialog({
+      message: 'Are you sure you want to delete this worker?',
+      type: 'danger',
+      confirmText: 'Delete',
+      onConfirm: () => {
+        const updated = workers.filter(w => w.id !== id);
+        setWorkers(updated);
+        saveWorkers(updated);
+        showToast('Worker deleted!', 'info');
+        setConfirmDialog(null);
+      }
+    });
   };
 
   const handleDeleteManager = (id) => {
-    if (window.confirm("Delete this manager?")) {
-      const updatedManagers = managers.filter(m => m.id !== id);
-      setManagers(updatedManagers);
-      localStorage.setItem("managers", JSON.stringify(updatedManagers));
-    }
+    setConfirmDialog({
+      message: 'Are you sure you want to delete this manager?',
+      type: 'danger',
+      confirmText: 'Delete',
+      onConfirm: () => {
+        const updated = managers.filter(m => m.id !== id);
+        setManagers(updated);
+        saveManagers(updated);
+        showToast('Manager deleted!', 'info');
+        setConfirmDialog(null);
+      }
+    });
   };
 
   return (
     <div className="max-w-2xl mx-auto p-5">
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      {confirmDialog && <ConfirmDialog message={confirmDialog.message} type={confirmDialog.type} confirmText={confirmDialog.confirmText} onConfirm={confirmDialog.onConfirm} onCancel={() => setConfirmDialog(null)} />}
       <h2 className="text-gray-800 text-2xl font-bold mb-5">⚙️ Shop Settings</h2>
       
       <div className="bg-white p-5 rounded-lg shadow-sm mb-5">

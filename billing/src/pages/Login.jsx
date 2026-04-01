@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getShops, getManagers, getWorkers, setSession } from "../services/authService";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -12,43 +13,26 @@ function Login() {
       return;
     }
     
-    // Check owner account
-    const shops = JSON.parse(localStorage.getItem("shops") || "[]");
+    const shops = getShops();
     const owner = shops.find(s => s.shopEmail === email && s.password === password);
-    
     if (owner) {
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("userRole", "owner");
-      localStorage.setItem("userName", "Owner");
-      localStorage.setItem("shopName", owner.shopName);
-      localStorage.setItem("shopAddress", owner.shopAddress || "");
-      localStorage.setItem("shopEmail", owner.shopEmail);
+      setSession({ userRole: 'owner', userName: 'Owner', shopName: owner.shopName, shopAddress: owner.shopAddress || '', shopEmail: owner.shopEmail });
       navigate("/");
       return;
     }
-    
-    // Check manager account
-    const managers = JSON.parse(localStorage.getItem("managers") || "[]");
+
+    const managers = getManagers();
     const manager = managers.find(m => m.email === email && m.password === password);
-    
     if (manager) {
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("userRole", "manager");
-      localStorage.setItem("userName", manager.name);
-      localStorage.setItem("shopName", manager.shopName);
+      setSession({ userRole: 'manager', userName: manager.name, shopName: manager.shopName });
       navigate("/");
       return;
     }
-    
-    // Check worker account
-    const workers = JSON.parse(localStorage.getItem("workers") || "[]");
+
+    const workers = getWorkers();
     const worker = workers.find(w => w.email === email && w.password === password);
-    
     if (worker) {
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("userRole", "worker");
-      localStorage.setItem("userName", worker.name);
-      localStorage.setItem("shopName", worker.shopName);
+      setSession({ userRole: 'worker', userName: worker.name, shopName: worker.shopName });
       navigate("/billing");
       return;
     }

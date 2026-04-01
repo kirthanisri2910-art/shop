@@ -1,45 +1,60 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdTrendingUp, MdTrendingDown, MdShoppingCart, MdAdd, MdWarning, MdLocalFireDepartment, MdCheckCircle, MdReceipt } from "react-icons/md";
 import { BiRupee, BiTrendingUp, BiTrendingDown } from "react-icons/bi";
 import { GiReceiveMoney, GiProfit, GiBrokenHeart } from "react-icons/gi";
 
+import { getProducts } from "../services/productService";
+import { getSales } from "../services/salesService";
+import { getDamages } from "../services/damageService";
+
 function Dashboard() {
   const navigate = useNavigate();
   const userRole = localStorage.getItem('userRole') || 'owner';
   
-  // Dummy data - replace with real data from API later
-  const [salesData] = useState([
-    { billNo: 1001, date: "2025-01-20", items: 5, total: 450, profit: 120 },
-    { billNo: 1002, date: "2025-01-20", items: 3, total: 280, profit: 80 },
-    { billNo: 1003, date: "2025-01-20", items: 7, total: 620, profit: 150 },
-  ]);
 
-  // Separate damage tracking (not part of sales)
-  const [damageData] = useState([
-    { item: "Tomatoes", quantity: 2, value: 80, reason: "Spoiled", date: "2025-01-20" },
-    { item: "Apples", quantity: 1, value: 30, reason: "Damaged", date: "2025-01-20" },
-  ]);
+  const [products, setProducts] = useState([]);
+  const [sales, setSales] = useState([]);
+  const [damages, setDamages] = useState([]);
+  
+  useEffect(() => {
+    setProducts(getProducts());
+    setSales(getSales());
+    setDamages(getDamages());
+  }, []);
+  const today = new Date().toLocaleDateString();
 
-  const [lowStockItems] = useState([
-    { name: "Oranges", stock: 3, unit: "kg", minStock: 10 },
-    { name: "Apples", stock: 5, unit: "kg", minStock: 15 },
-  ]);
+  const todaySalesList = sales.filter(s => new Date(s.date).toLocaleDateString() === today);
+  const todayDamageList = damages.filter(d => {
+    const dDate = new Date(d.date);
+    return dDate.toLocaleDateString() === today || d.date === today;
+  });
 
-  const [topProducts] = useState([
-    { name: "Tomato", sold: 45, revenue: 480 },
-    { name: "Onion", sold: 38, revenue: 450 },
-    { name: "Potato", sold: 32, revenue: 420 },
-  ]);
-
-  const todaySales = salesData.reduce((sum, s) => sum + s.total, 0);
-  const todayProfit = salesData.reduce((sum, s) => sum + s.profit, 0);
-  const todayDamage = damageData.reduce((sum, d) => sum + d.value, 0);
+  const todaySales = todaySalesList.reduce((sum, s) => sum + (s.total || 0), 0);
+  const todayProfit = todaySalesList.reduce((sum, s) => sum + (s.profit || 0), 0);
+  const todayDamage = todayDamageList.reduce((sum, d) => sum + (d.lossCost || 0), 0);
   const netProfit = todayProfit - todayDamage;
-  const todayBills = salesData.length;
+  const todayBills = todaySalesList.length;
   const avgBill = todayBills > 0 ? Math.round(todaySales / todayBills) : 0;
-  const yesterdaySales = 1200;
-  const salesGrowth = ((todaySales - yesterdaySales) / yesterdaySales * 100).toFixed(1);
+
+  // Top selling products from cart data
+  const productSalesMap = {};
+  sales.forEach(sale => {
+    (sale.cart || []).forEach(item => {
+      if (!productSalesMap[item.name]) productSalesMap[item.name] = { sold: 0, revenue: 0, unit: item.unit };
+      productSalesMap[item.name].sold += item.quantity;
+      productSalesMap[item.name].revenue += item.total;
+    });
+  });
+  const topProducts = Object.entries(productSalesMap)
+    .map(([name, data]) => ({ name, ...data }))
+    .sort((a, b) => b.revenue - a.revenue)
+    .slice(0, 5);
+
+  const lowStockItems = products.filter(p => p.stock <= 5);
+
+
+ 
 
   return (
     <div className="max-w-7xl mx-auto p-5">
@@ -71,9 +86,9 @@ function Dashboard() {
             <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide m-0">Today Sales</h3>
           </div>
           <div className="text-3xl font-bold text-green-500 my-2">₹{todaySales}</div>
-          <div className={`text-xs mt-1 flex items-center gap-1 ${salesGrowth >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+          {/* <div className={`text-xs mt-1 flex items-center gap-1 ${salesGrowth >= 0 ? 'text-green-500' : 'text-red-500'}`}>
             {salesGrowth >= 0 ? <BiTrendingUp size={16} /> : <BiTrendingDown size={16} />} {Math.abs(salesGrowth)}% vs yesterday
-          </div>
+          </div> */}
         </div>
         
         {userRole === 'owner' && (
@@ -132,10 +147,12 @@ function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {topProducts.map((item, idx) => (
+              {topProducts.length === 0 ? (
+                <tr><td colSpan="3" className="text-center py-5 text-gray-400 text-sm">No sales data yet</td></tr>
+              ) : topProducts.map((item, idx) => (
                 <tr key={idx} className="hover:bg-gray-50 transition">
                   <td className="p-3.5 border-b border-gray-100 text-gray-800 font-semibold">{item.name}</td>
-                  <td className="p-3.5 border-b border-gray-100 text-gray-800">{item.sold} kg</td>
+                  <td className="p-3.5 border-b border-gray-100 text-gray-800">{item.sold} {item.unit}</td>
                   <td className="p-3.5 border-b border-gray-100 font-bold text-green-500">₹{item.revenue}</td>
                 </tr>
               ))}
@@ -157,7 +174,9 @@ function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {lowStockItems.map((item, idx) => (
+              {lowStockItems.length === 0 ? (
+                <tr><td colSpan="3" className="text-center py-5 text-gray-400 text-sm">All products well stocked ✅</td></tr>
+              ) : lowStockItems.map((item, idx) => (
                 <tr key={idx} className="hover:bg-gray-50 transition">
                   <td className="p-3.5 border-b border-gray-100 text-gray-800 font-semibold">{item.name}</td>
                   <td className="p-3.5 border-b border-gray-100 font-bold text-red-500">{item.stock} {item.unit}</td>
@@ -176,6 +195,6 @@ function Dashboard() {
       </div>
     </div>
   );
-}
 
+}
 export default Dashboard;

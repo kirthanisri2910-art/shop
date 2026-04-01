@@ -1,33 +1,72 @@
 import { useState } from "react";
+import Toast from "../components/Toast";
+import ConfirmDialog from "../components/ConfirmDialog";
+import { getProducts, saveProducts } from "../services/productService";
 
 function Products() {
   const userRole = localStorage.getItem('userRole') || 'owner';
-  const [products, setProducts] = useState([
-    { id: 1, name: "Tomatoes", costPrice: 35, price: 40, unit: "kg", stock: 12, lastUpdated: "20/02/2026" },
-    { id: 2, name: "Apples", costPrice: 20, price: 30, unit: "kg", stock: 20, lastUpdated: "20/02/2026" },
-  ]);
-
+  const [products, setProducts] = useState(() => getProducts());
+   
+const handleSave = (updated) => {
+  setProducts(updated);
+  saveProducts(updated);
+};
   const [newProduct, setNewProduct] = useState({ name: "", costPrice: "", price: "", unit: "", stock: "" });
+  const [showRestockModal, setShowRestockModal] = useState(false);
+  const [restockData, setRestockData] = useState({ id: null, name: '', addStock: '', costPrice: '', price: '' });
   const [showEditModal, setShowEditModal] = useState(false);
   const [editData, setEditData] = useState({});
+
+  const handleRestock = (product) => {
+    setRestockData({ id: product.id, name: product.name, addStock: '', costPrice: product.costPrice, price: product.price });
+    setShowRestockModal(true);
+  };
+
+  const handleRestockSave = () => {
+    if (!restockData.addStock || restockData.addStock <= 0) {
+      showToast('Enter valid stock quantity', 'error');
+      return;
+    }
+    const updated = products.map(p => {
+      if (p.id !== restockData.id) return p;
+      const oldStock = Number(p.stock);
+      const addStock = Number(restockData.addStock);
+      const newCostPrice = Number(restockData.costPrice) || Number(p.costPrice);
+      const avgCostPrice = oldStock > 0
+        ? Math.round(((oldStock * Number(p.costPrice)) + (addStock * newCostPrice)) / (oldStock + addStock))
+        : newCostPrice;
+      return {
+        ...p,
+        stock: oldStock + addStock,
+        costPrice: avgCostPrice,
+        price: restockData.price || p.price,
+        lastUpdated: new Date().toLocaleDateString()
+      };
+    });
+    handleSave(updated);
+    setShowRestockModal(false);
+    showToast(`Stock updated for ${restockData.name}!`, 'success');
+  };
   const [successMsg, setSuccessMsg] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [toast, setToast] = useState(null);
+  const showToast = (msg, type = 'success') => setToast({ message: msg, type });
+  const [confirmDialog, setConfirmDialog] = useState(null);
 
   const handleAdd = () => {
     const requiredFields = userRole === 'owner'
       ? !newProduct.name || !newProduct.costPrice || !newProduct.unit || !newProduct.stock
       : !newProduct.name || !newProduct.unit || !newProduct.stock;
     if (requiredFields) {
-      alert("Fill all required fields");
+      showToast('Fill all required fields', 'error');
       return;
     }
     const id = Date.now();
-    setProducts([...products, { ...newProduct, id, lastUpdated: new Date().toLocaleDateString() }]);
+    handleSave([...products, { ...newProduct, id, lastUpdated: new Date().toLocaleDateString() }]);
     setNewProduct({ name: "", costPrice: "", price: "", unit: "", stock: "" });
     setShowModal(false);
-    setSuccessMsg("✅ Product added successfully!");
-    setTimeout(() => setSuccessMsg(""), 3000);
+    showToast('Product added successfully!', 'success');
   };
 
   const handleEdit = (product) => {
@@ -36,18 +75,24 @@ function Products() {
   };
 
   const handleUpdate = () => {
-    setProducts(products.map(p => 
+    handleSave(products.map(p =>
       p.id === editData.id ? { ...editData, lastUpdated: new Date().toLocaleDateString() } : p
     ));
     setShowEditModal(false);
-    setSuccessMsg("✅ Product updated successfully!");
-    setTimeout(() => setSuccessMsg(""), 3000);
+    showToast('Product updated successfully!', 'success');
   };
 
   const handleDelete = (id) => {
-    if (window.confirm("Delete this product?")) {
-      setProducts(products.filter(p => p.id !== id));
-    }
+    setConfirmDialog({
+      message: 'Are you sure you want to delete this product?',
+      type: 'danger',
+      confirmText: 'Delete',
+      onConfirm: () => {
+        handleSave(products.filter(p => p.id !== id));
+        showToast('Product deleted!', 'info');
+        setConfirmDialog(null);
+      }
+    });
   };
 
   const filteredProducts = products.filter(p => 
@@ -56,6 +101,8 @@ function Products() {
 
   return (
     <div className="max-w-7xl mx-auto p-5">
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      {confirmDialog && <ConfirmDialog message={confirmDialog.message} type={confirmDialog.type} confirmText={confirmDialog.confirmText} onConfirm={confirmDialog.onConfirm} onCancel={() => setConfirmDialog(null)} />}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-4">
         <h2 className="text-gray-800 text-2xl font-bold m-0">📦 Products Management</h2>
         <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center w-full sm:w-auto">
@@ -75,12 +122,7 @@ function Products() {
         </div>
       </div>
       
-      {successMsg && (
-        <div className="bg-green-100 text-green-800 px-5 py-3 rounded-lg mb-5 border border-green-200 text-sm font-semibold">
-          {successMsg}
-        </div>
-      )}
-      
+
       <div className="overflow-x-auto">
         <table className="w-full border-collapse my-4 bg-white rounded-lg overflow-hidden shadow-sm">
           <thead>
@@ -106,6 +148,7 @@ function Products() {
                 <td className="p-3.5 border-b border-gray-100 text-gray-800">{p.stock === 0 ? '❌ Out of Stock' : p.stock <= 5 ? '⚠️ Low stock' : '✅ In Stock'}</td>
                 <td className="p-3.5 border-b border-gray-100 text-gray-800">{p.lastUpdated}</td>
                 <td className="p-3.5 border-b border-gray-100">
+                  <button onClick={() => handleRestock(p)} className="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded mr-2 text-sm transition">📦 Restock</button>
                   <button onClick={() => handleEdit(p)} className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded mr-2 text-sm transition">✏️ Edit</button>
                   <button onClick={() => handleDelete(p.id)} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded text-sm transition">🗑️ Delete</button>
                 </td>
@@ -275,6 +318,54 @@ function Products() {
               >
                 Update Product
               </button>
+            </div>
+          </div>
+        </>
+      )}
+      {/* Restock Modal */}
+      {showRestockModal && (
+        <>
+          <div onClick={() => setShowRestockModal(false)} className="fixed inset-0 bg-black/50 z-[999]" />
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-2xl z-[1000] w-[90%] max-w-sm">
+            <h3 className="mt-0 mb-5 text-xl font-bold">📦 Restock - {restockData.name}</h3>
+            <div className="mb-4">
+              <label className="block mb-1 font-semibold text-sm">Add Stock Quantity *</label>
+              <input
+                type="number"
+                placeholder="Enter quantity to add"
+                value={restockData.addStock}
+                onChange={e => setRestockData({ ...restockData, addStock: e.target.value })}
+                className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                autoFocus
+              />
+            </div>
+            {userRole === 'owner' && (
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block mb-1 font-semibold text-sm">New Cost Price</label>
+                  <input
+                    type="number"
+                    placeholder={`Current: ₹${restockData.costPrice}`}
+                    value={restockData.costPrice}
+                    onChange={e => setRestockData({ ...restockData, costPrice: e.target.value })}
+                    className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  />
+                </div>
+                <div>
+                  <label className="block mb-1 font-semibold text-sm">New Selling Price</label>
+                  <input
+                    type="number"
+                    placeholder={`Current: ₹${restockData.price}`}
+                    value={restockData.price}
+                    onChange={e => setRestockData({ ...restockData, price: e.target.value })}
+                    className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  />
+                </div>
+              </div>
+            )}
+            <div className="flex gap-2.5 justify-end">
+              <button onClick={() => setShowRestockModal(false)} className="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2.5 rounded-lg transition">Cancel</button>
+              <button onClick={handleRestockSave} className="bg-green-500 hover:bg-green-600 text-white px-5 py-2.5 rounded-lg font-semibold transition">Add Stock</button>
             </div>
           </div>
         </>
