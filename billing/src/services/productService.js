@@ -12,7 +12,7 @@ export const updateProduct = (id, updatedProduct) => {
   const products = getProducts();
 
   const updated = products.map(p =>
-    p.id === id ? updatedProduct : p
+    Number(p.id) === Number(id) ? updatedProduct : p
   );
 
   saveProducts(updated);

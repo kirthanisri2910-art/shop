@@ -1,9 +1,16 @@
+import { useMemo } from "react";
 import { MdSave, MdPrint, MdRefresh } from "react-icons/md";
 
 function Summary({ cart, discount = 0, paymentMethod, newBill, saveBill, gst = 0, isSaved = false, isPrinted = false, onPrintComplete }) {
-  const subtotal = cart.reduce((sum, item) => sum + item.total, 0);
-  const gstAmount = (subtotal * gst) / 100;
-  const totalAfterDiscount = subtotal - discount;
+   const subtotal = useMemo(() => {
+    return cart.reduce((sum, item) => sum + item.total, 0);
+  }, [cart]);
+
+  
+  const totalAfterDiscount = Math.max(0, subtotal - discount);
+   const gstAmount = useMemo(() => {
+    return Math.round(((totalAfterDiscount * gst) / 100) * 100) / 100;
+  }, [totalAfterDiscount, gst]);
   const grandTotal = totalAfterDiscount + gstAmount;
 
   const handlePrint = () => {

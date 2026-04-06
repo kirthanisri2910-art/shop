@@ -1,8 +1,16 @@
+import { useMemo } from "react";
 import { MdDelete, MdShoppingCart } from "react-icons/md";
 
 function Cart({ cart, removeItem, updateQuantity }) {
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const grandTotal = cart.reduce((sum, item) => sum + item.total, 0);
+  const totalItems = useMemo(() => {
+    return cart.reduce((sum, item) => sum + item.quantity, 0);
+  }, [cart]);
+
+
+  const grandTotal = useMemo(() => {
+    return cart.reduce((sum, item) => sum + item.total, 0);
+  }, [cart]);
+
 
   return (
     <>
@@ -31,21 +39,30 @@ function Cart({ cart, removeItem, updateQuantity }) {
           </thead>
           <tbody>
             {cart.map((item, index) => (
-              <tr key={item.id} className="hover:bg-gray-50 transition">
+              <tr key={`${item.id}-${index}`} className="hover:bg-gray-50 transition">
                 <td className="p-3.5 border-b border-gray-100 text-gray-800">{index + 1}</td>
                 <td className="p-3.5 border-b border-gray-100 text-gray-800"><strong>{item.name}</strong></td>
                 <td className="p-3.5 border-b border-gray-100 text-gray-800">₹{item.price}</td>
                 <td className="p-3.5 border-b border-gray-100">
                   <div className="flex items-center gap-1 print:hidden">
                     <button
-                      onClick={() => updateQuantity(item, item.quantity - 1)}
+                      onClick={() => {
+                        if (item.quantity > 1) {
+                          updateQuantity(item, item.quantity - 1);
+                        }
+                      }}
                       className="w-7 h-7 bg-gray-200 hover:bg-gray-300 rounded font-bold text-gray-700 flex items-center justify-center transition"
                     >−</button>
                     <input
                       type="number"
                       value={item.quantity}
                       min={1}
-                      onChange={(e) => updateQuantity(item, Number(e.target.value))}
+                     onChange={(e) => {
+                        const val = Number(e.target.value);
+                        if (val >= 1) {
+                          updateQuantity(item, val);
+                        }
+                      }}
                       className="w-12 text-center border border-gray-300 rounded p-1 text-sm font-semibold focus:outline-none focus:border-blue-500"
                     />
                     <button
@@ -68,7 +85,7 @@ function Cart({ cart, removeItem, updateQuantity }) {
             ))}
             <tr className="bg-gray-100 font-bold">
               <td colSpan="4" className="text-right p-3.5">Grand Total:</td>
-              <td colSpan="2" className="p-3.5">₹{grandTotal}</td>
+              <td colSpan="2" className="p-3.5">₹{grandTotal.toFixed(2)}</td>
             </tr>
           </tbody>
         </table>

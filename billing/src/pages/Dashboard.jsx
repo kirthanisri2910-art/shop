@@ -1,57 +1,65 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdTrendingUp, MdTrendingDown, MdShoppingCart, MdAdd, MdWarning, MdLocalFireDepartment, MdCheckCircle, MdReceipt } from "react-icons/md";
 import { BiRupee, BiTrendingUp, BiTrendingDown } from "react-icons/bi";
 import { GiReceiveMoney, GiProfit, GiBrokenHeart } from "react-icons/gi";
-
 import { getProducts } from "../services/productService";
 import { getSales } from "../services/salesService";
 import { getDamages } from "../services/damageService";
+import { getSession } from "../services/sessionService";
 
 function Dashboard() {
   const navigate = useNavigate();
-  const userRole = localStorage.getItem('userRole') || 'owner';
-  
+  const { userRole } = getSession();
 
   const [products, setProducts] = useState([]);
   const [sales, setSales] = useState([]);
   const [damages, setDamages] = useState([]);
-  
+
   useEffect(() => {
     setProducts(getProducts());
     setSales(getSales());
     setDamages(getDamages());
   }, []);
-  const today = new Date().toLocaleDateString();
 
-  const todaySalesList = sales.filter(s => new Date(s.date).toLocaleDateString() === today);
-  const todayDamageList = damages.filter(d => {
-    const dDate = new Date(d.date);
-    return dDate.toLocaleDateString() === today || d.date === today;
-  });
+  const todayStr = new Date().toDateString();
 
-  const todaySales = todaySalesList.reduce((sum, s) => sum + (s.total || 0), 0);
-  const todayProfit = todaySalesList.reduce((sum, s) => sum + (s.profit || 0), 0);
-  const todayDamage = todayDamageList.reduce((sum, d) => sum + (d.lossCost || 0), 0);
+  const todaySalesList = useMemo(
+    () => sales.filter(s => new Date(s.date).toDateString() === todayStr),
+    [sales, todayStr]
+  );
+
+  const todayDamageList = useMemo(
+    () => damages.filter(d => new Date(d.date).toDateString() === todayStr),
+    [damages, todayStr]
+  );
+
+  const todaySales = useMemo(() => todaySalesList.reduce((sum, s) => sum + (s.total || 0), 0), [todaySalesList]);
+  const todayProfit = useMemo(() => todaySalesList.reduce((sum, s) => sum + (s.profit || 0), 0), [todaySalesList]);
+  const todayDamage = useMemo(() => todayDamageList.reduce((sum, d) => sum + (d.lossCost || 0), 0), [todayDamageList]);
   const netProfit = todayProfit - todayDamage;
   const todayBills = todaySalesList.length;
   const avgBill = todayBills > 0 ? Math.round(todaySales / todayBills) : 0;
 
-  // Top selling products from cart data
-  const productSalesMap = {};
-  sales.forEach(sale => {
-    (sale.cart || []).forEach(item => {
-      if (!productSalesMap[item.name]) productSalesMap[item.name] = { sold: 0, revenue: 0, unit: item.unit };
-      productSalesMap[item.name].sold += item.quantity;
-      productSalesMap[item.name].revenue += item.total;
+  const topProducts = useMemo(() => {
+    const map = {};
+    sales.forEach(sale => {
+      (sale.cart || []).forEach(item => {
+        if (!map[item.name]) map[item.name] = { sold: 0, revenue: 0, unit: item.unit };
+        map[item.name].sold += item.quantity;
+        map[item.name].revenue += item.total;
+      });
     });
-  });
-  const topProducts = Object.entries(productSalesMap)
-    .map(([name, data]) => ({ name, ...data }))
-    .sort((a, b) => b.revenue - a.revenue)
-    .slice(0, 5);
+    return Object.entries(map)
+      .map(([name, data]) => ({ name, ...data }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
+  }, [sales]);
 
-  const lowStockItems = products.filter(p => p.stock <= 5);
+  const lowStockItems = useMemo(
+    () => products.filter(p => p.stock <= 5),
+    [products]
+  );
 
 
  

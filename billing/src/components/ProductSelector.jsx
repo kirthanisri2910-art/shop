@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect,useMemo } from "react";
 import { MdWarning, MdInventory } from "react-icons/md";
 
 function ProductSelector({ products, addToCart }) {
@@ -9,9 +9,11 @@ function ProductSelector({ products, addToCart }) {
   const quantityRef = useRef(null);
   const searchRef = useRef(null);
 
-  const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = useMemo(()=>{
+    return products.filter(p => 
+      p.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [products, searchTerm]);
 
   useEffect(() => {
     const handleKeyPress = (e) => {
@@ -25,8 +27,11 @@ function ProductSelector({ products, addToCart }) {
 
   const handleAdd = () => {
     if (!selectedProduct) return;
-    if (!quantity || quantity <= 0) return;
-    addToCart(selectedProduct, Number(quantity));
+   
+    const qty = Number(quantity);
+    if (!qty || qty <= 0) return;
+
+    addToCart(selectedProduct, qty);
     
     setSelectedProduct(null);
     setQuantity("");
