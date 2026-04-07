@@ -1,9 +1,16 @@
+import { useMemo } from "react";
 import { MdSave, MdPrint, MdRefresh } from "react-icons/md";
 
 function Summary({ cart, discount = 0, paymentMethod, newBill, saveBill, gst = 0, isSaved = false, isPrinted = false, onPrintComplete }) {
-  const subtotal = cart.reduce((sum, item) => sum + item.total, 0);
-  const gstAmount = (subtotal * gst) / 100;
-  const totalAfterDiscount = subtotal - discount;
+   const subtotal = useMemo(() => {
+    return cart.reduce((sum, item) => sum + item.total, 0);
+  }, [cart]);
+
+  
+  const totalAfterDiscount = Math.max(0, subtotal - discount);
+   const gstAmount = useMemo(() => {
+    return Math.round(((totalAfterDiscount * gst) / 100) * 100) / 100;
+  }, [totalAfterDiscount, gst]);
   const grandTotal = totalAfterDiscount + gstAmount;
 
   const handlePrint = () => {
@@ -13,58 +20,57 @@ function Summary({ cart, discount = 0, paymentMethod, newBill, saveBill, gst = 0
   };
 
   return (
-    <div className="mt-5 pt-4 border-t-2 border-gray-200">
-      <div className="text-base mb-2">
-        <div className="flex justify-between mb-1">
-          <span>Subtotal:</span>
-          <span><strong>₹{subtotal}</strong></span>
+    <div className="mt-4 pt-4 border-t border-slate-100">
+      <div className="space-y-2 mb-4">
+        <div className="flex justify-between text-sm">
+          <span className="text-slate-500">Subtotal</span>
+          <span className="text-slate-700">₹{subtotal}</span>
         </div>
         {discount > 0 && (
-          <div className="flex justify-between mb-1 text-green-500">
-            <span>Discount:</span>
-            <span><strong>- ₹{discount}</strong></span>
+          <div className="flex justify-between text-sm">
+            <span className="text-slate-500">Discount</span>
+            <span className="text-emerald-600">- ₹{discount}</span>
           </div>
         )}
         {gst > 0 && (
-          <div className="flex justify-between mb-1 text-blue-500">
-            <span>GST ({gst}%):</span>
-            <span><strong>+ ₹{gstAmount.toFixed(2)}</strong></span>
+          <div className="flex justify-between text-sm">
+            <span className="text-slate-500">GST ({gst}%)</span>
+            <span className="text-slate-600">+ ₹{gstAmount.toFixed(2)}</span>
           </div>
         )}
-        <div className="flex justify-between text-lg mt-2.5 pt-2.5 border-t border-gray-200">
-          <span><strong>Grand Total:</strong></span>
-          <span><strong>₹{grandTotal.toFixed(2)}</strong></span>
+        <div className="flex justify-between items-center pt-3 border-t border-slate-100">
+          <span className="text-slate-700 font-semibold">Grand Total</span>
+          <span className="text-slate-900 text-2xl font-bold">₹{grandTotal.toFixed(2)}</span>
         </div>
-        
         {paymentMethod && (
-          <div className="flex justify-between mt-2 text-sm text-gray-500">
-            <span>Payment Method:</span>
-            <span><strong>{paymentMethod}</strong></span>
+          <div className="flex justify-between text-xs">
+            <span className="text-slate-400">Payment</span>
+            <span className="text-slate-600 font-medium">{paymentMethod}</span>
           </div>
         )}
       </div>
-      
-      <div className="print:hidden grid grid-cols-3 gap-2.5 mt-5">
-        <button 
-          onClick={saveBill} 
+
+      <div className="print:hidden grid grid-cols-3 gap-2 mt-4">
+        <button
+          onClick={saveBill}
           disabled={cart.length === 0}
-          className="bg-blue-500 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-1"
+          className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white py-2.5 rounded-lg font-semibold text-sm transition flex items-center justify-center gap-1.5"
         >
-          <MdSave size={18} /> Save
+          <MdSave size={16} /> Save
         </button>
-        <button 
-          onClick={handlePrint} 
+        <button
+          onClick={handlePrint}
           disabled={cart.length === 0 || !isSaved}
           title={!isSaved ? "Save bill before printing" : "Print bill"}
-          className="bg-green-500 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-1"
+          className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white py-2.5 rounded-lg font-semibold text-sm transition flex items-center justify-center gap-1.5"
         >
-          <MdPrint size={18} /> Print
+          <MdPrint size={16} /> Print
         </button>
-        <button 
-          onClick={newBill} 
-          className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-1"
+        <button
+          onClick={newBill}
+          className="border border-slate-200 hover:bg-slate-50 text-slate-600 py-2.5 rounded-lg font-semibold text-sm transition flex items-center justify-center gap-1.5"
         >
-          <MdRefresh size={18} /> New
+          <MdRefresh size={16} /> New
         </button>
       </div>
     </div>

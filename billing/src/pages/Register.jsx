@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getShops, saveShops } from "../services/authService";
 
 function Register() {
   const [shopName, setShopName] = useState("");
@@ -30,29 +31,17 @@ function Register() {
       return;
     }
 
-    // Check if email and shop name combination already exists
-    const existingShops = JSON.parse(localStorage.getItem("shops") || "[]");
-    const shopExists = existingShops.find(s => 
-      s.shopName.toLowerCase() === shopName.toLowerCase() && 
+    const existingShops = getShops();
+    const shopExists = existingShops.find(s =>
+      s.shopName.toLowerCase() === shopName.toLowerCase() &&
       s.shopEmail === shopEmail
     );
-    
     if (shopExists) {
       alert("Shop with this name and email already exists! Please login.");
       return;
     }
-
-    // Save new shop
-    const newShop = {
-      shopName,
-      password,
-      shopAddress,
-      shopEmail,
-      createdAt: new Date().toISOString()
-    };
-
-    existingShops.push(newShop);
-    localStorage.setItem("shops", JSON.stringify(existingShops));
+    const newShop = { shopName, password, shopAddress, shopEmail, createdAt: new Date().toISOString() };
+    saveShops([...existingShops, newShop]);
     
     alert("Registration successful! Please login.");
     navigate("/login");
