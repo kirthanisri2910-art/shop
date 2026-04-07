@@ -3,19 +3,21 @@ import Toast from "../components/Toast";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { getProducts, saveProducts } from "../services/productService";
 import { getSession } from "../services/authService";
+import { isProductReady } from "../utils/billingUtils";
 
 // ── constants ─────────────────────────────────────────────────────────────────
 
-const EMPTY_PRODUCT = { name: "", costPrice: "", price: "", unit: "", stock: "" };
-const EMPTY_RESTOCK = { id: null, name: "", addStock: "", costPrice: "", price: "" };
+const EMPTY_PRODUCT = { name: "", costPrice: "", sellingPrice: "", unit: "", stock: "" };
+const EMPTY_RESTOCK = { id: null, name: "", addStock: "", costPrice: "", sellingPrice: "" };
 const today = () => new Date().toLocaleDateString();
 
 const toNum = (val) => Number(val) || 0;
 
-const stockStatus = (stock) => {
+const stockStatus = (stock, ready) => {
+  if (!ready) return { label: "⏳ Pending", color: "bg-gray-100 text-gray-600" };
   if (stock === 0) return { label: "❌ Out of Stock", color: "bg-red-100 text-red-700" };
   if (stock <= 5) return { label: "⚠️ Low Stock", color: "bg-yellow-100 text-yellow-700" };
-  return { label: "✅ In Stock", color: "bg-green-100 text-green-700" };
+  return { label: "✅ Ready for Sale", color: "bg-green-100 text-green-700" };
 };
 
 // ── component ─────────────────────────────────────────────────────────────────
@@ -63,7 +65,7 @@ function Products() {
       id: `prod_${Date.now()}`,
       name: newProduct.name.trim(),
       costPrice: toNum(newProduct.costPrice),
-      price: toNum(newProduct.price),
+      sellingPrice: toNum(newProduct.sellingPrice),
       unit: newProduct.unit.trim(),
       stock: toNum(newProduct.stock),
       lastUpdated: today()
@@ -78,7 +80,7 @@ function Products() {
       p.id === editData.id ? {
         ...editData,
         costPrice: toNum(editData.costPrice),
-        price: toNum(editData.price),
+        sellingPrice: toNum(editData.sellingPrice),
         stock: toNum(editData.stock),
         lastUpdated: today()
       } : p
@@ -101,7 +103,7 @@ function Products() {
   };
 
   const handleRestockOpen = (product) => {
-    setRestockData({ id: product.id, name: product.name, addStock: "", costPrice: product.costPrice, price: product.price });
+    setRestockData({ id: product.id, name: product.name, addStock: "", costPrice: product.costPrice, sellingPrice: product.sellingPrice });
     setShowRestockModal(true);
   };
 
@@ -120,7 +122,7 @@ function Products() {
         ...p,
         stock: oldStock + addStock,
         costPrice: avgCostPrice,
-        price: toNum(restockData.price) || toNum(p.price),
+        sellingPrice: toNum(restockData.sellingPrice) || toNum(p.sellingPrice),
         lastUpdated: today()
       };
     }));
@@ -129,9 +131,10 @@ function Products() {
   };
 
   // ── input class ────────────────────────────────────────────────────────────
-  const inputCls = "w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+  const inputCls = "w-full p-2.5 rounded-lg border border-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 text-slate-700";
 
   return (
+    <div className="min-h-screen bg-slate-50">
     <div className="max-w-7xl mx-auto p-5">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       {confirmDialog && (
@@ -145,66 +148,109 @@ function Products() {
       )}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-4">
-        <h2 className="text-gray-800 text-2xl font-bold m-0">📦 Products Management</h2>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <div>
+          <h2 className="text-slate-800 text-2xl font-bold m-0">Products</h2>
+          <p className="text-gray-400 text-sm mt-1">{products.length} products total</p>
+        </div>
         <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center w-full sm:w-auto">
-          <input
-            type="text"
-            placeholder="🔍 Search products..."
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            className="px-4 py-2.5 rounded-lg border-2 border-gray-200 text-sm w-full sm:w-72 focus:outline-none focus:border-blue-500"
-          />
+          {/* Search */}
+          <div className="relative">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="pl-9 pr-4 py-2.5 rounded-lg border border-gray-200 bg-white text-sm w-full sm:w-64 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+            />
+          </div>
           <button
             onClick={() => setShowAddModal(true)}
-            className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold text-sm whitespace-nowrap transition"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-semibold text-sm whitespace-nowrap transition shadow-sm flex items-center gap-1.5"
           >
-            ➕ Add Product
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            Add Product
           </button>
         </div>
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse my-4 bg-white rounded-lg overflow-hidden shadow-sm">
-          <thead>
-            <tr>
-              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Name</th>
-              {isOwner && <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Cost Price</th>}
-              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Selling Price</th>
-              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Unit</th>
-              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Stock</th>
-              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Status</th>
-              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Last Updated</th>
-              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredProducts.length === 0 ? (
-              <tr><td colSpan={isOwner ? 8 : 7} className="text-center py-10 text-gray-400">No products found</td></tr>
-            ) : filteredProducts.map(p => {
-              const status = stockStatus(p.stock);
-              return (
-                <tr key={p.id} className={`hover:bg-gray-50 transition ${p.stock < 5 ? "bg-red-50" : "bg-white"}`}>
-                  <td className="p-3.5 border-b border-gray-100 text-gray-800 font-semibold">{p.name}</td>
-                  {isOwner && <td className="p-3.5 border-b border-gray-100 text-gray-800">₹{p.costPrice}</td>}
-                  <td className="p-3.5 border-b border-gray-100 text-gray-800">₹{p.price}</td>
-                  <td className="p-3.5 border-b border-gray-100 text-gray-800">{p.unit}</td>
-                  <td className={`p-3.5 border-b border-gray-100 font-bold ${p.stock < 5 ? "text-red-500" : "text-green-500"}`}>{p.stock}</td>
-                  <td className="p-3.5 border-b border-gray-100">
-                    <span className={`px-2 py-1 rounded text-xs font-semibold ${status.color}`}>{status.label}</span>
-                  </td>
-                  <td className="p-3.5 border-b border-gray-100 text-gray-800">{p.lastUpdated}</td>
-                  <td className="p-3.5 border-b border-gray-100">
-                    <button onClick={() => handleRestockOpen(p)} className="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded mr-2 text-sm transition">📦 Restock</button>
-                    <button onClick={() => { setEditData(p); setShowEditModal(true); }} className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded mr-2 text-sm transition">✏️ Edit</button>
-                    <button onClick={() => handleDelete(p.id)} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded text-sm transition">🗑️ Delete</button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">Name</th>
+                {isOwner && <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">Cost Price</th>}
+                <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">Selling Price</th>
+                <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">Unit</th>
+                <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">Stock</th>
+                <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">Status</th>
+                <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">Last Updated</th>
+                <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredProducts.length === 0 ? (
+                <tr><td colSpan={isOwner ? 8 : 7} className="text-center py-12 text-gray-400">No products found</td></tr>
+              ) : filteredProducts.map(p => {
+                const ready = isProductReady(p);
+                const status = stockStatus(p.stock, ready);
+                return (
+                  <tr key={p.id} className="hover:bg-slate-50 transition border-b border-gray-100 last:border-0">
+                    <td className="px-5 py-3.5 text-slate-800 font-semibold text-sm">{p.name}</td>
+                    {isOwner && <td className="px-5 py-3.5 text-gray-500 text-sm">₹{p.costPrice}</td>}
+                    <td className="px-5 py-3.5 text-gray-500 text-sm">{p.sellingPrice ? `₹${p.sellingPrice}` : <span className="text-gray-300">—</span>}</td>
+                    <td className="px-5 py-3.5 text-gray-500 text-sm">{p.unit}</td>
+                    <td className={`px-5 py-3.5 font-bold text-sm ${p.stock === 0 ? 'text-red-500' : p.stock <= 5 ? 'text-amber-500' : 'text-slate-700'}`}>{p.stock}</td>
+                    <td className="px-5 py-3.5">
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
+                        p.stock === 0 ? 'bg-red-50 text-red-600' :
+                        p.stock <= 5 ? 'bg-amber-50 text-amber-600' :
+                        'bg-emerald-50 text-emerald-600'
+                      }`}>
+                        {p.stock === 0 ? 'Out of Stock' : p.stock <= 5 ? 'Low Stock' : 'In Stock'}
+                      </span>
+                    </td>
+                    <td className="px-5 py-3.5 text-gray-400 text-sm">{p.lastUpdated}</td>
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-1">
+                        {/* Restock */}
+                        <button onClick={() => handleRestockOpen(p)} title="Restock"
+                          className="p-1.5 rounded-md text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition">
+                          <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path d="M20 7H4M20 7l-4-4M20 7l-4 4M4 17h16M4 17l4-4M4 17l4 4"/>
+                          </svg>
+                        </button>
+                        {/* Edit */}
+                        <button onClick={() => { setEditData(p); setShowEditModal(true); }} title="Edit"
+                          className="p-1.5 rounded-md text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition">
+                          <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                          </svg>
+                        </button>
+                        {/* Delete */}
+                        <button onClick={() => handleDelete(p.id)} title="Delete"
+                          className="p-1.5 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 transition">
+                          <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                            <path d="M10 11v6M14 11v6"/>
+                            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Add Modal */}
@@ -225,8 +271,8 @@ function Products() {
             )}
             <div>
               <label className="block mb-1 font-semibold text-sm">Selling Price</label>
-              <input type="number" placeholder="₹0" value={newProduct.price}
-                onChange={e => setNewProduct({ ...newProduct, price: e.target.value })} className={inputCls} />
+              <input type="number" placeholder="₹0" value={newProduct.sellingPrice}
+                onChange={e => setNewProduct({ ...newProduct, sellingPrice: e.target.value })} className={inputCls} />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4 mb-5">
@@ -242,7 +288,7 @@ function Products() {
             </div>
           </div>
           <ModalActions onCancel={() => { setShowAddModal(false); setNewProduct(EMPTY_PRODUCT); }}
-            onConfirm={handleAdd} confirmLabel="Add Product" confirmColor="bg-green-500 hover:bg-green-600" />
+            onConfirm={handleAdd} confirmLabel="Add Product" confirmColor="bg-indigo-600 hover:bg-indigo-700" />
         </Modal>
       )}
 
@@ -264,8 +310,8 @@ function Products() {
             )}
             <div>
               <label className="block mb-1 font-semibold text-sm">Selling Price *</label>
-              <input type="number" value={editData.price}
-                onChange={e => setEditData({ ...editData, price: e.target.value })} className={inputCls} />
+              <input type="number" value={editData.sellingPrice}
+                onChange={e => setEditData({ ...editData, sellingPrice: e.target.value })} className={inputCls} />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4 mb-5">
@@ -281,7 +327,7 @@ function Products() {
             </div>
           </div>
           <ModalActions onCancel={() => setShowEditModal(false)}
-            onConfirm={handleUpdate} confirmLabel="Update Product" confirmColor="bg-blue-500 hover:bg-blue-600" />
+            onConfirm={handleUpdate} confirmLabel="Update Product" confirmColor="bg-indigo-600 hover:bg-indigo-700" />
         </Modal>
       )}
 
@@ -302,15 +348,16 @@ function Products() {
               </div>
               <div>
                 <label className="block mb-1 font-semibold text-sm">New Selling Price</label>
-                <input type="number" placeholder={`Current: ₹${restockData.price}`} value={restockData.price}
-                  onChange={e => setRestockData({ ...restockData, price: e.target.value })} className={inputCls} />
+                <input type="number" placeholder={`Current: ₹${restockData.sellingPrice}`} value={restockData.sellingPrice}
+                  onChange={e => setRestockData({ ...restockData, sellingPrice: e.target.value })} className={inputCls} />
               </div>
             </div>
           )}
           <ModalActions onCancel={() => setShowRestockModal(false)}
-            onConfirm={handleRestockSave} confirmLabel="Add Stock" confirmColor="bg-green-500 hover:bg-green-600" />
+            onConfirm={handleRestockSave} confirmLabel="Add Stock" confirmColor="bg-indigo-600 hover:bg-indigo-700" />
         </Modal>
       )}
+    </div>
     </div>
   );
 }
@@ -332,7 +379,7 @@ function Modal({ title, onClose, children, maxWidth = "max-w-lg" }) {
 function ModalActions({ onCancel, onConfirm, confirmLabel, confirmColor }) {
   return (
     <div className="flex gap-2.5 justify-end">
-      <button onClick={onCancel} className="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2.5 rounded-lg transition">
+      <button onClick={onCancel} className="border border-gray-200 hover:bg-gray-50 text-slate-600 px-5 py-2.5 rounded-lg transition">
         Cancel
       </button>
       <button onClick={onConfirm} className={`${confirmColor} text-white px-5 py-2.5 rounded-lg font-semibold transition`}>

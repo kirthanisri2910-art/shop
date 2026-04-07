@@ -12,10 +12,14 @@ export const calcBillTotals = (cart, discount, gst) => {
   const gstAmount = Math.round((subtotal - discount) * gst / 100);
   const total = subtotal - discount + gstAmount;
   const profit = cart.reduce(
-    (sum, item) => sum + ((item.price - (item.costPrice || 0)) * item.quantity), 0
+    (sum, item) => sum + ((item.sellingPrice - (item.costPrice || 0)) * item.quantity), 0
   ) - discount;
   return { subtotal, gstAmount, total, profit };
 };
+
+export const isProductReady = (p) => !!(p.costPrice && p.sellingPrice);
+
+export const getBillableProducts = (products) => products.filter(isProductReady);
 
 export const applyStockChange = (products, cart, direction = -1) =>
   products.map(p => {
@@ -43,8 +47,8 @@ export const buildBillData = ({ billNo, customerName, cart, discount, gst, payme
     id: `bill_${Date.now()}`,
     billNo,
     customerName,
-    cart: cart.map(({ id, name, unit, price, costPrice = 0, quantity, total }) => ({
-      id, name, unit, price, costPrice, quantity, total
+    cart: cart.map(({ id, name, unit, sellingPrice, costPrice = 0, quantity, total }) => ({
+      id, name, unit, sellingPrice, costPrice, quantity, total
     })),
     subtotal,
     discount,

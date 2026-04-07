@@ -14,82 +14,62 @@ function Cart({ cart, removeItem, updateQuantity }) {
 
   return (
     <>
-      <div className="flex justify-between mb-2.5 text-sm text-gray-500">
-        <span>Total Items: <strong>{totalItems}</strong></span>
-        <span>Products: <strong>{cart.length}</strong></span>
+      <div className="flex justify-between mb-3 text-xs text-slate-400 uppercase tracking-wide font-semibold">
+        <span>{cart.length} product{cart.length !== 1 ? 's' : ''}</span>
+        <span>{totalItems} units</span>
       </div>
 
-      {cart.length === 0 ? (
-        <div className="text-center py-16 px-10 bg-gray-50 rounded-xl text-gray-400">
-          <MdShoppingCart size={64} className="opacity-30 mb-4 mx-auto" />
-          <p className="text-lg font-semibold my-2.5 text-gray-500">Cart is empty</p>
-          <p className="text-sm m-0">Add products to start billing</p>
-        </div>
-      ) : (
-        <table className="w-full border-collapse my-4 bg-white rounded-lg overflow-hidden shadow-sm">
-          <thead>
-            <tr>
-              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">S.No</th>
-              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Product</th>
-              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Price</th>
-              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Qty</th>
-              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Total</th>
-              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide print:hidden">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {cart.map((item, index) => (
-              <tr key={`${item.id}-${index}`} className="hover:bg-gray-50 transition">
-                <td className="p-3.5 border-b border-gray-100 text-gray-800">{index + 1}</td>
-                <td className="p-3.5 border-b border-gray-100 text-gray-800"><strong>{item.name}</strong></td>
-                <td className="p-3.5 border-b border-gray-100 text-gray-800">₹{item.price}</td>
-                <td className="p-3.5 border-b border-gray-100">
-                  <div className="flex items-center gap-1 print:hidden">
-                    <button
-                      onClick={() => {
-                        if (item.quantity > 1) {
-                          updateQuantity(item, item.quantity - 1);
-                        }
-                      }}
-                      className="w-7 h-7 bg-gray-200 hover:bg-gray-300 rounded font-bold text-gray-700 flex items-center justify-center transition"
-                    >−</button>
-                    <input
-                      type="number"
-                      value={item.quantity}
-                      min={1}
-                     onChange={(e) => {
-                        const val = Number(e.target.value);
-                        if (val >= 1) {
-                          updateQuantity(item, val);
-                        }
-                      }}
-                      className="w-12 text-center border border-gray-300 rounded p-1 text-sm font-semibold focus:outline-none focus:border-blue-500"
-                    />
-                    <button
-                      onClick={() => updateQuantity(item, item.quantity + 1)}
-                      className="w-7 h-7 bg-gray-200 hover:bg-gray-300 rounded font-bold text-gray-700 flex items-center justify-center transition"
-                    >+</button>
-                  </div>
-                  <strong className="hidden print:block">{item.quantity}</strong>
-                </td>
-                <td className="p-3.5 border-b border-gray-100 text-gray-800"><strong>₹{item.total}</strong></td>
-                <td className="p-3.5 border-b border-gray-100 print:hidden">
+      <table className="w-full border-collapse">
+        <thead>
+          <tr className="bg-slate-50 border-b border-slate-200">
+            <th className="px-3 py-2.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">#</th>
+            <th className="px-3 py-2.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Product</th>
+            <th className="px-3 py-2.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Price</th>
+            <th className="px-3 py-2.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Qty</th>
+            <th className="px-3 py-2.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Total</th>
+            <th className="px-3 py-2.5 print:hidden"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {cart.map((item, index) => (
+            <tr key={`${item.id}-${index}`} className="hover:bg-slate-50 transition border-b border-slate-100 last:border-0">
+              <td className="px-3 py-3 text-slate-400 text-xs">{index + 1}</td>
+              <td className="px-3 py-3 text-slate-800 font-medium text-sm">{item.name}</td>
+              <td className="px-3 py-3 text-slate-500 text-sm">₹{item.price}</td>
+              <td className="px-3 py-3">
+                <div className="flex items-center gap-1 print:hidden">
                   <button
-                    onClick={() => removeItem(item)}
-                    className="px-3.5 py-2 text-xs bg-red-500 hover:bg-red-600 text-white border-none rounded-md cursor-pointer flex items-center gap-1 font-semibold transition"
-                  >
-                    <MdDelete size={16} /> Remove
-                  </button>
-                </td>
-              </tr>
-            ))}
-            <tr className="bg-gray-100 font-bold">
-              <td colSpan="4" className="text-right p-3.5">Grand Total:</td>
-              <td colSpan="2" className="p-3.5">₹{grandTotal.toFixed(2)}</td>
+                    onClick={() => item.quantity > 1 && updateQuantity(item, item.quantity - 1)}
+                    className="w-6 h-6 bg-slate-100 hover:bg-slate-200 rounded text-slate-600 flex items-center justify-center text-sm transition"
+                  >−</button>
+                  <input
+                    type="number" value={item.quantity} min={1}
+                    onChange={e => { const v = Number(e.target.value); if (v >= 1) updateQuantity(item, v); }}
+                    className="w-10 text-center border border-slate-200 rounded p-1 text-xs font-semibold focus:outline-none focus:border-indigo-400 text-slate-700"
+                  />
+                  <button
+                    onClick={() => updateQuantity(item, item.quantity + 1)}
+                    className="w-6 h-6 bg-slate-100 hover:bg-slate-200 rounded text-slate-600 flex items-center justify-center text-sm transition"
+                  >+</button>
+                </div>
+                <span className="hidden print:block text-sm font-semibold">{item.quantity}</span>
+              </td>
+              <td className="px-3 py-3 text-slate-800 font-semibold text-sm">₹{item.total}</td>
+              <td className="px-3 py-3 print:hidden">
+                <button onClick={() => removeItem(item)} title="Remove"
+                  className="p-1.5 rounded-md text-slate-300 hover:text-red-500 hover:bg-red-50 transition">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                    <path d="M10 11v6M14 11v6"/>
+                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                  </svg>
+                </button>
+              </td>
             </tr>
-          </tbody>
-        </table>
-      )}
+          ))}
+        </tbody>
+      </table>
     </>
   );
 }

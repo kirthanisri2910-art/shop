@@ -111,6 +111,7 @@ function SalesReport() {
   };
 
   return (
+    <div className="min-h-screen bg-slate-50">
     <div className="max-w-7xl mx-auto p-5">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       {confirmDialog && (
@@ -123,17 +124,24 @@ function SalesReport() {
         />
       )}
 
-      <h2 className="text-gray-800 text-2xl font-bold mb-5">📊 Sales Report</h2>
+      {/* Header */}
+      <div className="mb-6">
+        <h2 className="text-slate-800 text-2xl font-bold m-0">Sales Report</h2>
+        <p className="text-slate-400 text-sm mt-1">Track your sales, profit and damages</p>
+      </div>
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow-sm mb-5 flex flex-col sm:flex-row gap-4 items-start sm:items-center flex-wrap">
-        <div className="flex gap-2 flex-wrap">
+      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-5 flex flex-col sm:flex-row gap-3 items-start sm:items-center flex-wrap">
+        {/* Quick Filters */}
+        <div className="flex gap-1.5 flex-wrap">
           {["today", "weekly", "monthly", "yearly"].map(f => (
             <button
               key={f}
               onClick={() => handleQuickFilter(f)}
               className={`px-4 py-2 rounded-lg font-semibold text-sm capitalize transition ${
-                filter === f && !fromDate ? "bg-green-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                filter === f && !fromDate
+                  ? "bg-indigo-600 text-white shadow-sm"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
               {f}
@@ -141,91 +149,110 @@ function SalesReport() {
           ))}
         </div>
 
-        <div className="hidden sm:block w-px h-8 bg-gray-200" />
+        <div className="hidden sm:block w-px h-6 bg-slate-200" />
 
+        {/* Date Range */}
         <div className="flex gap-2 items-center flex-wrap">
           <input type="date" value={fromDate}
             onChange={e => { setFromDate(e.target.value); setFilter(""); }}
-            className="p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+            className="px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-white"
           />
-          <span className="text-gray-500 text-sm">to</span>
+          <span className="text-slate-400 text-sm">→</span>
           <input type="date" value={toDate}
             onChange={e => { setToDate(e.target.value); setFilter(""); }}
-            className="p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+            className="px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-white"
           />
           {fromDate && toDate && (
             <button onClick={clearDateFilter}
-              className="px-3 py-2 bg-red-100 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-200 transition"
+              className="px-3 py-2 text-slate-400 hover:text-red-500 rounded-lg text-sm transition"
             >
-              ✕ Clear
+              ✕
             </button>
           )}
         </div>
 
-        <div className="sm:ml-auto">
-          <input type="text" placeholder="🔍 Bill no / Customer..."
+        {/* Search */}
+        <div className="sm:ml-auto relative">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input type="text" placeholder="Bill no / Customer..."
             value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-            className="p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500 w-full sm:w-56"
+            className="pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 w-full sm:w-56 bg-white"
           />
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5 mb-5">
-        <StatCard label="Total Sales" value={`₹${stats.totalSales}`} color="bg-green-500" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-5">
+        <StatCard label="Total Sales" value={`₹${stats.totalSales}`} accent="border-t-emerald-500" iconColor="text-emerald-500" />
         {isOwner && (
           <>
-            <StatCard label="Total Profit" value={`₹${stats.totalProfit}`} color="bg-blue-500" />
-            <StatCard label="Total Damage" value={`₹${stats.totalDamage}`} color="bg-red-500" />
-            <StatCard label="Net Profit" value={`₹${stats.netProfit}`} color="bg-green-700" />
+            <StatCard label="Total Profit" value={`₹${stats.totalProfit}`} accent="border-t-indigo-500" iconColor="text-indigo-500" />
+            <StatCard label="Total Damage" value={`₹${stats.totalDamage}`} accent="border-t-red-400" iconColor="text-red-400" />
+            <StatCard label="Net Profit" value={`₹${stats.netProfit}`} accent="border-t-emerald-600" iconColor="text-emerald-600" />
           </>
         )}
-        <StatCard label="Total Bills" value={searchedSales.length} color="bg-orange-500" />
+        <StatCard label="Total Bills" value={searchedSales.length} accent="border-t-blue-400" iconColor="text-blue-400" />
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse bg-white rounded-lg overflow-hidden shadow-sm">
-          <thead>
-            <tr>
-              {["Bill No", "Date & Time", "Customer", "Items", "Total"].map(h => (
-                <th key={h} className="bg-gray-800 text-white p-3.5 text-left text-xs uppercase tracking-wide">{h}</th>
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-slate-50 border-b border-slate-200">
+                {["Bill No", "Date & Time", "Customer", "Items", "Total"].map(h => (
+                  <th key={h} className="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">{h}</th>
+                ))}
+                {isOwner && <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Profit</th>}
+                <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {searchedSales.length === 0 ? (
+                <tr>
+                  <td colSpan={isOwner ? 7 : 6} className="text-center py-12 text-slate-400 text-sm">
+                    No sales records found
+                  </td>
+                </tr>
+              ) : searchedSales.map((sale) => (
+                <tr key={sale.id} className="hover:bg-slate-50 transition cursor-pointer border-b border-slate-100 last:border-0" onClick={() => setSelectedBill(sale)}>
+                  <td className="px-5 py-3.5 text-slate-800 font-semibold text-sm">#{sale.billNo}</td>
+                  <td className="px-5 py-3.5 text-slate-500 text-sm">{new Date(sale.date).toLocaleString()}</td>
+                  <td className="px-5 py-3.5 text-slate-700 font-medium text-sm">{sale.customerName || "-"}</td>
+                  <td className="px-5 py-3.5 text-slate-500 text-sm">{sale.cart?.length || 0}</td>
+                  <td className="px-5 py-3.5 text-slate-900 font-bold text-sm">₹{sale.total}</td>
+                  {isOwner && <td className="px-5 py-3.5 text-emerald-600 font-bold text-sm">₹{sale.profit || 0}</td>}
+                  <td className="px-5 py-3.5">
+                    <div className="flex items-center gap-1">
+                      {/* View */}
+                      <button onClick={e => { e.stopPropagation(); setSelectedBill(sale); }} title="View"
+                        className="p-1.5 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                          <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                      </button>
+                      {/* Delete */}
+                      {isOwner && (
+                        <button onClick={e => { e.stopPropagation(); handleDeleteSale(sale); }} title="Delete"
+                          className="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition">
+                          <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                            <path d="M10 11v6M14 11v6"/>
+                            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
               ))}
-              {isOwner && <th className="bg-gray-800 text-white p-3.5 text-left text-xs uppercase tracking-wide">Profit</th>}
-              <th className="bg-gray-800 text-white p-3.5 text-left text-xs uppercase tracking-wide">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {searchedSales.length === 0 ? (
-              <tr>
-                <td colSpan={isOwner ? 7 : 6} className="text-center py-10 text-gray-400">
-                  No sales records found
-                </td>
-              </tr>
-            ) : searchedSales.map((sale) => (
-              <tr key={sale.id} className="hover:bg-gray-50 transition cursor-pointer" onClick={() => setSelectedBill(sale)}>
-                <td className="p-3.5 border-b border-gray-100">#{sale.billNo}</td>
-                <td className="p-3.5 border-b border-gray-100">{new Date(sale.date).toLocaleString()}</td>
-                <td className="p-3.5 border-b border-gray-100 font-semibold">{sale.customerName || "-"}</td>
-                <td className="p-3.5 border-b border-gray-100">{sale.cart?.length || 0}</td>
-                <td className="p-3.5 border-b border-gray-100 font-bold">₹{sale.total}</td>
-                {isOwner && <td className="p-3.5 border-b border-gray-100 text-green-600 font-bold">₹{sale.profit || 0}</td>}
-                <td className="p-3.5 border-b border-gray-100">
-                  <button onClick={e => { e.stopPropagation(); setSelectedBill(sale); }}
-                    className="px-3 py-1 bg-blue-100 text-blue-600 rounded text-xs font-semibold hover:bg-blue-200 transition mr-1">
-                    View
-                  </button>
-                  {isOwner && (
-                    <button onClick={e => { e.stopPropagation(); handleDeleteSale(sale); }}
-                      className="px-3 py-1 bg-red-100 text-red-600 rounded text-xs font-semibold hover:bg-red-200 transition">
-                      Delete
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Bill Detail Modal */}
@@ -234,55 +261,70 @@ function SalesReport() {
           <div onClick={() => setSelectedBill(null)} className="fixed inset-0 bg-black/50 z-[999]" />
           <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-xl shadow-2xl z-[1000] w-[90%] max-w-lg max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold">Bill #{selectedBill.billNo}</h3>
+              <div>
+                <h3 className="text-slate-800 text-lg font-bold m-0">Bill #{selectedBill.billNo}</h3>
+                <p className="text-slate-400 text-xs mt-0.5">{new Date(selectedBill.date).toLocaleString()}</p>
+              </div>
               <div className="flex gap-2 items-center">
                 {isOwner && (
                   <button onClick={() => handleDeleteSale(selectedBill)}
-                    className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-semibold transition">
-                    🗑️ Delete
+                    className="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <polyline points="3 6 5 6 21 6"/>
+                      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                      <path d="M10 11v6M14 11v6"/>
+                      <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                    </svg>
                   </button>
                 )}
-                <button onClick={() => setSelectedBill(null)} className="text-gray-400 hover:text-gray-600 text-xl font-bold">✕</button>
+                <button onClick={() => setSelectedBill(null)} className="p-1.5 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition text-lg font-bold">✕</button>
               </div>
             </div>
 
-            <div className="text-sm text-gray-600 mb-4 space-y-1">
-              <p><span className="font-semibold">Date:</span> {new Date(selectedBill.date).toLocaleString()}</p>
-              <p><span className="font-semibold">Customer:</span> {selectedBill.customerName || "-"}</p>
-              <p><span className="font-semibold">Payment:</span> {selectedBill.paymentMethod}</p>
+            <div className="bg-slate-50 rounded-lg p-3 mb-4 text-sm space-y-1">
+              <div className="flex justify-between">
+                <span className="text-slate-400">Customer</span>
+                <span className="text-slate-700 font-medium">{selectedBill.customerName || "-"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Payment</span>
+                <span className="text-slate-700 font-medium">{selectedBill.paymentMethod}</span>
+              </div>
             </div>
 
             <table className="w-full border-collapse mb-4">
               <thead>
-                <tr className="bg-gray-100">
+                <tr className="bg-slate-50">
                   {["Product", "Qty", "Price", "Total"].map(h => (
-                    <th key={h} className="p-2 text-left text-xs font-semibold">{h}</th>
+                    <th key={h} className="px-3 py-2 text-left text-xs font-semibold text-slate-400 uppercase">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {selectedBill.cart?.map((item, i) => (
-                  <tr key={i} className="border-b border-gray-100">
-                    <td className="p-2 text-sm">{item.name}</td>
-                    <td className="p-2 text-sm">{item.quantity} {item.unit}</td>
-                    <td className="p-2 text-sm">₹{item.price}</td>
-                    <td className="p-2 text-sm font-semibold">₹{item.total}</td>
+                  <tr key={i} className="border-b border-slate-100">
+                    <td className="px-3 py-2.5 text-sm text-slate-700 font-medium">{item.name}</td>
+                    <td className="px-3 py-2.5 text-sm text-slate-500">{item.quantity} {item.unit}</td>
+                    <td className="px-3 py-2.5 text-sm text-slate-500">₹{item.price}</td>
+                    <td className="px-3 py-2.5 text-sm text-slate-800 font-semibold">₹{item.total}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
 
-            <div className="border-t pt-3 space-y-1 text-sm">
-              <div className="flex justify-between"><span>Subtotal</span><span>₹{selectedBill.subtotal}</span></div>
+            <div className="border-t border-slate-100 pt-3 space-y-1.5 text-sm">
+              <div className="flex justify-between text-slate-500"><span>Subtotal</span><span>₹{selectedBill.subtotal}</span></div>
               {selectedBill.discount > 0 && (
                 <div className="flex justify-between text-red-500"><span>Discount</span><span>-₹{selectedBill.discount}</span></div>
               )}
               {selectedBill.gst > 0 && (
-                <div className="flex justify-between"><span>GST ({selectedBill.gst}%)</span><span>₹{selectedBill.gstAmount}</span></div>
+                <div className="flex justify-between text-slate-500"><span>GST ({selectedBill.gst}%)</span><span>₹{selectedBill.gstAmount}</span></div>
               )}
-              <div className="flex justify-between font-bold text-base border-t pt-2"><span>Total</span><span>₹{selectedBill.total}</span></div>
+              <div className="flex justify-between font-bold text-slate-900 text-base border-t border-slate-100 pt-2">
+                <span>Total</span><span>₹{selectedBill.total}</span>
+              </div>
               {isOwner && (
-                <div className="flex justify-between text-green-600 font-semibold">
+                <div className="flex justify-between text-emerald-600 font-semibold">
                   <span>Profit</span><span>₹{selectedBill.profit || 0}</span>
                 </div>
               )}
@@ -291,14 +333,15 @@ function SalesReport() {
         </>
       )}
     </div>
+    </div>
   );
 }
 
-function StatCard({ label, value, color }) {
+function StatCard({ label, value, accent, iconColor }) {
   return (
-    <div className={`${color} text-white p-5 rounded-lg text-center shadow-md`}>
-      <h3 className="text-sm font-semibold mb-2">{label}</h3>
-      <p className="text-3xl font-bold">{value}</p>
+    <div className={`bg-white rounded-xl border border-slate-200 shadow-sm p-5 border-t-4 ${accent} hover:shadow-md transition`}>
+      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">{label}</p>
+      <p className={`text-2xl font-bold text-slate-900`}>{value}</p>
     </div>
   );
 }

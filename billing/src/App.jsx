@@ -88,7 +88,7 @@ function NavBar() {
 
         <button
           onClick={handleLogout}
-          className="text-white px-4 py-2 rounded-md bg-red-500 hover:bg-red-600 border-none font-medium text-sm cursor-pointer flex items-center gap-1 transition"
+          className="px-4 py-2 rounded-md border border-white/20 bg-transparent hover:bg-red-500/10 text-white/70 hover:text-red-400 font-medium text-sm cursor-pointer flex items-center gap-1 transition"
         >
           <MdLogout size={16} /> Logout
         </button>

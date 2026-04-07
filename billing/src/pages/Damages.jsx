@@ -39,13 +39,13 @@ function Damages() {
     [products]
   );
 
-  // Auto calculate lossCost 
   const handleFormChange = (field, value) => {
     const updated = { ...form, [field]: value };
 
     if (field === "productId" || field === "quantity") {
-      const product = productMap[field === "productId" ? value : form.productId];
+      const productId = field === "productId" ? value : form.productId;
       const qty = toNum(field === "quantity" ? value : form.quantity);
+      const product = productMap[productId];
       if (product && qty > 0) {
         updated.lossCost = Math.round(toNum(product.costPrice) * qty);
       }
@@ -61,7 +61,7 @@ function Damages() {
   const handleAdd = () => {
     if (!isFormValid) { showToast("Fill all required fields", "error"); return; }
 
-    const product = productMap[Number(form.productId)];
+    const product = productMap[form.productId];
     const qty = toNum(form.quantity);
 
     if (product.stock < qty) {
@@ -99,7 +99,6 @@ function Damages() {
 
   const handleEditChange = (field, value) => {
     const updated = { ...editData, [field]: value };
-
     if (field === "quantity") {
       const product = productMap[editData.productId];
       const qty = toNum(value);
@@ -107,7 +106,6 @@ function Damages() {
         updated.lossCost = Math.round(toNum(product.costPrice) * qty);
       }
     }
-
     setEditData(updated);
   };
 
@@ -157,8 +155,10 @@ function Damages() {
     });
   };
 
-  //  UI 
+  const inputCls = "w-full p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-slate-700 bg-white";
+
   return (
+    <div className="min-h-screen bg-slate-50">
     <div className="max-w-7xl mx-auto p-5">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       {confirmDialog && (
@@ -171,21 +171,25 @@ function Damages() {
         />
       )}
 
-      <h2 className="text-gray-800 text-2xl font-bold mb-5">🗑️ Damages & Wastage</h2>
+      {/* Header */}
+      <div className="mb-6">
+        <h2 className="text-slate-900 text-2xl font-bold m-0">Damages & Wastage</h2>
+        <p className="text-slate-400 text-sm mt-1">{damages.length} records total</p>
+      </div>
 
       {/* Add Form */}
-      <div className="bg-white p-5 rounded-lg shadow-sm mb-5">
-        <h3 className="text-lg font-bold mb-4">Record Damage</h3>
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 mb-5">
+        <h3 className="text-slate-700 text-sm font-semibold uppercase tracking-wide mb-4">Record Damage</h3>
         <div className="grid grid-cols-1 md:grid-cols-5 gap-2.5">
           <select
             value={form.productId}
-            onChange={e => handleFormChange("productId", Number(e.target.value))}
-            className="p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            onChange={e => handleFormChange("productId", e.target.value)}
+            className="p-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-slate-700 bg-white"
           >
             <option value="">Select Product</option>
             {products.map(p => (
               <option key={p.id} value={p.id}>
-                {p.name} (Stock: {p.stock} {p.unit}){userRole === "owner" ? ` | Cost: ₹${p.costPrice}` : ""}
+                {p.name} (Stock: {p.stock} {p.unit}){userRole === "owner" ? ` | ₹${p.costPrice}` : ""}
               </option>
             ))}
           </select>
@@ -195,7 +199,7 @@ function Damages() {
             placeholder="Quantity"
             value={form.quantity}
             onChange={e => handleFormChange("quantity", e.target.value)}
-            className="p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            className="p-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-slate-700"
           />
 
           {userRole === "owner" && (
@@ -204,7 +208,7 @@ function Damages() {
               placeholder="Loss Cost (₹)"
               value={form.lossCost}
               onChange={e => setForm({ ...form, lossCost: e.target.value })}
-              className="p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="p-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-slate-700"
             />
           )}
 
@@ -212,57 +216,79 @@ function Damages() {
             placeholder="Reason"
             value={form.reason}
             onChange={e => handleFormChange("reason", e.target.value)}
-            className="p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            className="p-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-slate-700"
           />
 
           <button
             onClick={handleAdd}
             disabled={!isFormValid}
-            className="px-5 py-2.5 bg-red-500 hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg font-semibold transition"
+            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg font-semibold transition shadow-sm"
           >
-            Add
+            Add Record
           </button>
         </div>
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse bg-white rounded-lg overflow-hidden shadow-sm">
-          <thead>
-            <tr>
-              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Product</th>
-              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Quantity</th>
-              {userRole === "owner" && <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Loss Cost</th>}
-              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Reason</th>
-              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Date</th>
-              <th className="bg-gray-800 text-white p-3.5 text-left font-semibold text-xs uppercase tracking-wide">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {damages.length === 0 ? (
-              <tr><td colSpan="6" className="text-center py-10 text-gray-400">No damage records found</td></tr>
-            ) : damages.map(d => (
-              <tr key={d.id} className={`hover:bg-gray-50 transition ${toNum(d.lossCost) > 200 ? "bg-red-50" : "bg-white"}`}>
-                <td className="p-3.5 border-b border-gray-100 text-gray-800 font-semibold">{d.productName}</td>
-                <td className="p-3.5 border-b border-gray-100 text-gray-800">{d.quantity} {productMap[d.productId]?.unit || ""}</td>
-                {userRole === "owner" && (
-                  <td className={`p-3.5 border-b border-gray-100 font-bold ${toNum(d.lossCost) > 200 ? "text-red-600" : "text-red-500"}`}>
-                    ₹{d.lossCost}
-                    {toNum(d.lossCost) > 200 && <span className="ml-1 text-xs bg-red-100 text-red-700 px-1 rounded">High</span>}
-                  </td>
-                )}
-                <td className="p-3.5 border-b border-gray-100">
-                  <span className="bg-red-50 text-red-700 px-2 py-1 rounded text-sm">{d.reason}</span>
-                </td>
-                <td className="p-3.5 border-b border-gray-100 text-gray-800 text-sm">{new Date(d.date).toLocaleString()}</td>
-                <td className="p-3.5 border-b border-gray-100">
-                  <button onClick={() => handleEdit(d)} className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded mr-2 text-sm transition">✏️ Edit</button>
-                  <button onClick={() => handleDelete(d)} className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded text-sm transition">🗑️ Delete</button>
-                </td>
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-slate-50 border-b border-slate-200">
+                <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Product</th>
+                <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Quantity</th>
+                {userRole === "owner" && <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Loss Cost</th>}
+                <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Reason</th>
+                <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Date</th>
+                <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {damages.length === 0 ? (
+                <tr><td colSpan="6" className="text-center py-12 text-slate-400 text-sm">No damage records found</td></tr>
+              ) : damages.map(d => (
+                <tr key={d.id} className="hover:bg-slate-50 transition border-b border-slate-100 last:border-0 bg-white">
+                  <td className="px-5 py-3.5 text-slate-800 font-medium text-sm">{d.productName}</td>
+                  <td className="px-5 py-3.5 text-slate-600 text-sm">{d.quantity} {productMap[d.productId]?.unit || ""}</td>
+                  {userRole === "owner" && (
+                    <td className="px-5 py-3.5 text-sm">
+                      <span className="text-red-500">₹{d.lossCost}</span>
+                      {toNum(d.lossCost) > 200 && (
+                        <span className="ml-2 text-xs bg-red-50 text-red-500 px-2 py-0.5 rounded-full border border-red-100">High</span>
+                      )}
+                    </td>
+                  )}
+                  <td className="px-5 py-3.5">
+                    <span className="text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">{d.reason}</span>
+                  </td>
+                  <td className="px-5 py-3.5 text-slate-500 text-sm">{new Date(d.date).toLocaleString()}</td>
+                  <td className="px-5 py-3.5">
+                    <div className="flex items-center gap-1">
+                      {/* Edit */}
+                      <button onClick={() => handleEdit(d)} title="Edit"
+                        className="p-1.5 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition">
+                        <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                      </button>
+                      {/* Delete */}
+                      <button onClick={() => handleDelete(d)} title="Delete"
+                        className="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition">
+                        <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <polyline points="3 6 5 6 21 6"/>
+                          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                          <path d="M10 11v6M14 11v6"/>
+                          <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Edit Modal */}
@@ -270,56 +296,52 @@ function Damages() {
         <>
           <div onClick={() => setShowEditModal(false)} className="fixed inset-0 bg-black/50 z-[999]" />
           <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-xl shadow-2xl z-[1000] w-[90%] max-w-lg">
-            <h3 className="mt-0 mb-5 text-xl font-bold">✏️ Edit Damage Record</h3>
+            <h3 className="mt-0 mb-5 text-slate-900 text-xl font-bold">Edit Damage Record</h3>
 
             <div className="mb-4">
-              <label className="block mb-1 font-semibold text-sm">Product</label>
-              <input
-                value={editData.productName}
-                disabled
-                className="w-full p-2.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-500"
-              />
+              <label className="block mb-1 text-sm font-semibold text-slate-600">Product</label>
+              <input value={editData.productName} disabled
+                className="w-full p-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-400 text-sm" />
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
-                <label className="block mb-1 font-semibold text-sm">Quantity *</label>
-                <input
-                  type="number"
-                  value={editData.quantity}
+                <label className="block mb-1 text-sm font-semibold text-slate-600">Quantity *</label>
+                <input type="number" value={editData.quantity}
                   onChange={e => handleEditChange("quantity", e.target.value)}
-                  className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                />
+                  className={inputCls} />
               </div>
               {userRole === "owner" && (
                 <div>
-                  <label className="block mb-1 font-semibold text-sm">Loss Cost *</label>
-                  <input
-                    type="number"
-                    value={editData.lossCost}
+                  <label className="block mb-1 text-sm font-semibold text-slate-600">Loss Cost *</label>
+                  <input type="number" value={editData.lossCost}
                     onChange={e => setEditData({ ...editData, lossCost: e.target.value })}
-                    className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                  />
+                    className={inputCls} />
                 </div>
               )}
             </div>
 
-            <div className="mb-5">
-              <label className="block mb-1 font-semibold text-sm">Reason *</label>
-              <input
-                value={editData.reason}
+            <div className="mb-6">
+              <label className="block mb-1 text-sm font-semibold text-slate-600">Reason *</label>
+              <input value={editData.reason}
                 onChange={e => setEditData({ ...editData, reason: e.target.value })}
-                className="w-full p-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              />
+                className={inputCls} />
             </div>
 
             <div className="flex gap-2.5 justify-end">
-              <button onClick={() => setShowEditModal(false)} className="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2.5 rounded-lg transition">Cancel</button>
-              <button onClick={handleUpdate} className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold transition">Update Record</button>
+              <button onClick={() => setShowEditModal(false)}
+                className="border border-slate-200 hover:bg-slate-50 text-slate-600 px-5 py-2.5 rounded-lg transition text-sm">
+                Cancel
+              </button>
+              <button onClick={handleUpdate}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-semibold transition text-sm">
+                Update Record
+              </button>
             </div>
           </div>
         </>
       )}
+    </div>
     </div>
   );
 }
